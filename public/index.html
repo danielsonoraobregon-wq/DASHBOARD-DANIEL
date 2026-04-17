@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TerrenosBot · Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0ede6;--white:#fff;--border:#e8e4db;
+  --dark:#141410;--dark2:#1c1c14;
+  --gold:#c8a96e;--green:#00e87a;--red:#ff5e7a;--blue:#7b9fff;--orange:#ff9f6b;
+  --text:#1a1a1a;--muted:#aaa;--faint:#f5f2ec;
+}
+*{box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#ccc8be;border-radius:2px}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .15s}
+button:hover{filter:brightness(.92)}
+input,select,textarea{font-family:'DM Sans',sans-serif;outline:none}
+
+/* SIDEBAR */
+#sidebar{width:220px;background:var(--dark);color:#f0ede6;display:flex;flex-direction:column;flex-shrink:0;height:100vh}
+.sb-logo{padding:22px 20px 16px;border-bottom:1px solid #1e1e16}
+.sb-logo h1{font-family:'Playfair Display',serif;font-weight:900;font-size:19px}
+.sb-logo h1 span{color:var(--gold)}
+.sb-logo p{font-size:9px;color:#444;margin-top:3px;letter-spacing:1.2px;text-transform:uppercase}
+nav{padding:10px;flex:1;overflow-y:auto}
+.nav-label{font-size:9px;color:#333;letter-spacing:1.5px;text-transform:uppercase;padding:8px 10px 5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;width:100%;background:transparent;color:#555;font-size:13px;font-weight:400;text-align:left;margin-bottom:2px}
+.nav-item.active{background:var(--gold);color:var(--dark);font-weight:700}
+.nav-item:hover:not(.active):not(.disabled){background:#1e1e16;color:#aaa}
+.nav-item.disabled{cursor:default;opacity:.35}
+.nav-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.nav-badge{font-size:9px;background:#1e1e16;color:#333;padding:2px 7px;border-radius:10px;margin-left:auto}
+.sb-footer{padding:14px 18px;border-top:1px solid #1e1e16}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;margin-right:7px;vertical-align:middle}
+.sb-footer p{font-size:11px;color:#555;margin-bottom:4px}
+.sb-footer small{font-size:10px;color:#2e2e20}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--white);border-bottom:1px solid var(--border);padding:13px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#topbar-crumb{font-size:13px;color:var(--muted)}
+.topbar-wa{font-size:12px;color:var(--muted)}
+.topbar-wa span{color:var(--gold);font-weight:600}
+#content{flex:1;overflow-y:auto;padding:24px 28px}
+
+/* VISTAS */
+.vista{display:none}.vista.active{display:block}
+
+/* GRIDS */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:13px;padding:18px 20px;margin-bottom:14px}
+.card:last-child{margin-bottom:0}
+.stat-card{padding:14px 16px}
+.stat-icon{font-size:20px;margin-bottom:6px}
+.stat-val{font-family:'Playfair Display',serif;font-weight:800;font-size:30px;line-height:1;margin-bottom:5px}
+.stat-lbl{font-size:11px;color:var(--muted)}
+.card-title{font-family:'Playfair Display',serif;font-weight:700;font-size:15px;margin-bottom:14px}
+
+/* SECTION TITLE */
+.page-title{font-family:'Playfair Display',serif;font-weight:800;font-size:22px;margin-bottom:18px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.page-header .page-title{margin:0}
+
+/* ACTIVIDAD */
+.act-row{display:flex;gap:12px;align-items:flex-start;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--faint)}
+.act-row:last-child{border:none;padding:0;margin:0}
+.act-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.av-reply{background:#f0fdf6}.av-block{background:#fff0f2}
+.act-user{font-size:12px;font-weight:600}
+.act-time{color:var(--muted);font-weight:400}
+.act-text{font-size:12px;color:#777;margin-top:3px;line-height:1.5}
+
+/* INNER TABS */
+.inner-tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content}
+.itab{background:transparent;color:var(--muted);font-size:12px;font-weight:400;padding:7px 18px;border-radius:8px}
+.itab.active{background:var(--dark2);color:#f0ede6;font-weight:600}
+
+/* TERRENO CARDS */
+.tc{background:var(--white);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:10px;transition:box-shadow .2s}
+.tc:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
+.tc-nombre{font-family:'Playfair Display',serif;font-weight:700;font-size:16px}
+.estado-badge{font-size:11px;padding:2px 10px;border-radius:20px;font-weight:600}
+.info-box{background:var(--faint);border-radius:9px;padding:10px 13px;border:1px solid #ebe7df;margin-top:10px}
+.info-lbl{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.info-txt{font-size:12px;color:#666;line-height:1.7}
+.adset-row{margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.adset-val{font-size:12px;font-weight:600;color:var(--gold);background:#fdf6eb;padding:2px 10px;border-radius:20px;border:1px solid #ead9b0}
+.tc-stats{display:flex;gap:14px;margin-top:8px}
+.tc-stat{font-size:11px;color:var(--muted)}
+.tc-stat strong{color:#555}
+.tc-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* FORM */
+.form-card{background:var(--white);border:2px solid var(--gold);border-radius:13px;padding:20px;margin-bottom:18px;display:none}
+.form-card.open{display:block}
+.form-card-title{font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:var(--gold);margin-bottom:14px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.fi{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:#faf9f6;color:var(--text)}
+.fi:focus{border-color:var(--gold)}
+.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600}
+.btn:hover{transform:translateY(-1px)}
+.btn-dark{background:var(--dark2);color:#f0ede6}
+.btn-ghost{background:var(--faint);color:#888}
+.btn-red{background:#fff0f2;color:var(--red);border:1px solid #fad7d7}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* BLOQUEADOS */
+.bl-row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--faint)}
+.bl-row:last-child{border:none}
+.pl-ig{font-size:10px;padding:2px 8px;border-radius:20px;background:#fce4f8;color:#c13584}
+.pl-fb{font-size:10px;padding:2px 8px;border-radius:20px;background:#e8f0fd;color:#1877f2}
+
+/* ADS PERIODOS */
+.ptabs{display:flex;gap:5px;margin-bottom:18px}
+.ptab{border:1px solid var(--border);background:var(--white);color:#888;font-size:12px;padding:7px 16px;border-radius:8px;font-weight:400}
+.ptab.active{background:var(--dark2);color:#f0ede6;border-color:var(--dark2);font-weight:700}
+
+/* TOAST */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark2);color:#f0ede6;padding:11px 24px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.25);z-index:9999;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.err{background:#c0392b}
+
+@media(max-width:680px){
+  #sidebar{width:56px}
+  .nav-item span:not(.nav-icon){display:none}
+  .sb-logo p,.sb-footer p,.sb-footer small{display:none}
+  .sb-logo h1{font-size:13px}
+  .g4{grid-template-columns:1fr 1fr}
+  #content{padding:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<div id="sidebar">
+  <div class="sb-logo">
+    <h1>Terrenos<span>Bot</span></h1>
+    <p>Dashboard</p>
+  </div>
+  <nav>
+    <div class="nav-label">Módulos</div>
+    <button class="nav-item active" onclick="ir('overview',this)">
+      <span class="nav-icon">⬛</span><span>Overview</span>
+    </button>
+    <button class="nav-item" onclick="ir('bot_fb',this)">
+      <span class="nav-icon">💬</span><span>Bot FB + IG</span>
+    </button>
+    <button class="nav-item" onclick="ir('terrenos',this)">
+      <span class="nav-icon">🏞️</span><span>Terrenos</span>
+    </button>
+    <button class="nav-item" onclick="ir('ads',this)">
+      <span class="nav-icon">📣</span><span>Facebook Ads</span>
+    </button>
+    <button class="nav-item disabled">
+      <span class="nav-icon">📱</span><span>Bot WhatsApp</span><span class="nav-badge">PRONTO</span>
+    </button>
+    <button class="nav-item disabled">
+      <span class="nav-icon">📊</span><span>Estadísticas</span><span class="nav-badge">PRONTO</span>
+    </button>
+  </nav>
+  <div class="sb-footer">
+    <p><span class="sb-dot"></span>Bot activo 24/7</p>
+    <small>Railway · Claude · Meta</small>
+  </div>
+</div>
+
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<div id="main">
+  <div id="topbar">
+    <div id="topbar-crumb">⬛ Overview</div>
+    <div class="topbar-wa">WhatsApp: <span>wa.me/573001234567</span></div>
+  </div>
+  <div id="content">
+
+    <!-- OVERVIEW -->
+    <div class="vista active" id="v-overview">
+      <div class="page-title">Overview</div>
+      <div class="g4">
+        <div class="card stat-card"><div class="stat-icon">💬</div><div class="stat-val" id="stat-comentarios" style="color:var(--blue)">—</div><div class="stat-lbl">Comentarios totales</div></div>
+        <div class="card stat-card"><div class="stat-icon">✅</div><div class="stat-val" id="stat-respondidos" style="color:var(--green)">—</div><div class="stat-lbl">Respondidos por bot</div></div>
+        <div class="card stat-card"><div class="stat-icon">🚫</div><div class="stat-val" id="stat-bloqueados" style="color:var(--red)">—</div><div class="stat-lbl">Usuarios bloqueados</div></div>
+        <div class="card stat-card"><div class="stat-icon">🏞️</div><div class="stat-val" id="stat-disponibles" style="color:var(--gold)">—</div><div class="stat-lbl">Terrenos disponibles</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Actividad reciente</div>
+        <div class="actividad-container"><p style="color:var(--muted);font-size:13px">Cargando...</p></div>
+      </div>
+    </div>
+
+    <!-- BOT FB + IG -->
+    <div class="vista" id="v-bot_fb">
+      <div class="page-title">Bot FB + IG</div>
+      <div class="g4">
+        <div class="card stat-card"><div class="stat-icon">✅</div><div class="stat-val" style="color:var(--green)">22</div><div class="stat-lbl">Respondidos</div></div>
+        <div class="card stat-card"><div class="stat-icon">⚡</div><div class="stat-val" style="color:var(--blue)">1.8s</div><div class="stat-lbl">Tiempo resp.</div></div>
+        <div class="card stat-card"><div class="stat-icon">🎯</div><div class="stat-val" style="color:var(--gold)">96%</div><div class="stat-lbl">Tasa respuesta</div></div>
+        <div class="card stat-card"><div class="stat-icon">📥</div><div class="stat-val" style="color:var(--muted)">0</div><div class="stat-lbl">En cola</div></div>
+      </div>
+      <div class="inner-tabs">
+        <button class="itab active" onclick="itab('bot_fb','actividad',this)">💬 Actividad</button>
+        <button class="itab" onclick="itab('bot_fb','bloqueador',this)">🚫 Bloqueador</button>
+      </div>
+      <div id="bot_fb-actividad">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+            <span style="font-weight:600;font-size:13px">Bot activo · responde en ~2 seg</span>
+          </div>
+          <div class="actividad-container"><p style="color:var(--muted);font-size:13px">Cargando...</p></div>
+        </div>
+      </div>
+      <div id="bot_fb-bloqueador" style="display:none">
+        <div class="card">
+          <div class="card-title">Usuarios bloqueados</div>
+          <div id="lista-bloqueados"><p style="color:var(--muted);font-size:13px">Cargando...</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TERRENOS -->
+    <div class="vista" id="v-terrenos">
+      <div class="page-header">
+        <div class="page-title">Terrenos</div>
+        <button class="btn btn-dark" onclick="toggleForm()">+ Nuevo terreno</button>
+      </div>
+      <div class="form-card" id="terreno-form">
+        <div class="form-card-title" id="form-titulo">➕ Nuevo terreno</div>
+        <div class="form-grid2">
+          <div class="fg"><label>Nombre del lote</label><input class="fi" id="f-nombre" placeholder="Ej: Lote El Pinar #3"></div>
+          <div class="fg"><label>Nombre del Ad Set en Meta</label><input class="fi" id="f-adset" placeholder="Debe coincidir exactamente"></div>
+          <div class="fg"><label>Estado</label><select class="fi" id="f-estado"><option>Disponible</option><option>Reservado</option><option>Vendido</option></select></div>
+        </div>
+        <div class="fg">
+          <label>Información del terreno <span style="color:var(--gold);text-transform:none;letter-spacing:0;font-size:10px">(Claude usa este texto para responder)</span></label>
+          <textarea class="fi" id="f-info" rows="4" style="resize:vertical;line-height:1.6;margin-top:5px" placeholder="Escribe todo: precio, área, ubicación, servicios, condiciones de venta..."></textarea>
+          <div style="font-size:11px;color:#bbb;margin-top:4px">💡 Entre más completo, mejor responde el bot</div>
+        </div>
+        <input type="hidden" id="f-editid">
+        <div class="form-actions">
+          <button class="btn btn-ghost" onclick="cerrarForm()">Cancelar</button>
+          <button class="btn btn-dark" onclick="guardar()">✅ Guardar</button>
+        </div>
+      </div>
+      <div id="terrenos-lista"></div>
+    </div>
+
+    <!-- ADS -->
+    <div class="vista" id="v-ads">
+      <div class="page-title">Facebook Ads</div>
+      <div class="ptabs">
+        <button class="ptab" onclick="periodo('hoy',this)">Hoy</button>
+        <button class="ptab active" onclick="periodo('semana',this)">7 días</button>
+        <button class="ptab" onclick="periodo('mes',this)">Este mes</button>
+        <button class="ptab" onclick="periodo('todo',this)">Todo</button>
+      </div>
+      <div class="g2">
+        <div class="card stat-card"><div class="stat-icon">💸</div><div class="stat-val" id="a-gasto" style="color:var(--gold)">$124.000</div><div class="stat-lbl">Gasto total</div></div>
+        <div class="card stat-card"><div class="stat-icon">💬</div><div class="stat-val" id="a-conv" style="color:var(--green)">21</div><div class="stat-lbl">Conversaciones</div></div>
+        <div class="card stat-card"><div class="stat-icon">🎯</div><div class="stat-val" id="a-cpc" style="color:var(--blue)">$5.904</div><div class="stat-lbl">Costo por conversación</div></div>
+        <div class="card stat-card"><div class="stat-icon">🙋</div><div class="stat-val" id="a-leads" style="color:var(--orange)">8</div><div class="stat-lbl">Leads generados</div></div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:10px">
+        <div style="width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);flex-shrink:0"></div>
+        <div>
+          <div style="font-size:13px;font-weight:600">Conectado a Meta Marketing API</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Datos actualizados automáticamente cada 15 minutos</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = '';
+const EC={Disponible:"#2d9e6b",Reservado:"#b8860b",Vendido:"#c0392b"};
+const EB={Disponible:"#edfaf4",Reservado:"#fefae8",Vendido:"#fdecea"};
+let DB = [];
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+const v=id=>document.getElementById(id).value.trim();
+const set=(id,val)=>document.getElementById(id).value=val;
+const set2=(id,val)=>document.getElementById(id).textContent=val;
+function toast(msg,err=0){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='show'+(err?' err':'');
+  setTimeout(()=>el.className='',2300);
+}
+async function api(path,opts={}){
+  const r=await fetch(API+path,{headers:{'Content-Type':'application/json'},...opts});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// ── NAVEGACIÓN ────────────────────────────────────────────────────────────────
+function ir(id, btn) {
+  document.querySelectorAll('.vista').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('v-'+id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('topbar-crumb').textContent = btn.textContent.trim().replace('PRONTO','');
+  if(id==='terrenos') loadTerrenos();
+  if(id==='overview'||id==='bot_fb') loadStats();
+}
+
+// ── INNER TABS ────────────────────────────────────────────────────────────────
+function itab(vid, tab, btn) {
+  ['actividad','bloqueador'].forEach(t=>{
+    const el = document.getElementById(vid+'-'+t);
+    if(el) el.style.display = t===tab?'block':'none';
+  });
+  btn.closest('.inner-tabs').querySelectorAll('.itab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── STATS / OVERVIEW ──────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const s = await api('/api/stats');
+    set2('stat-comentarios', s.totalComentarios);
+    set2('stat-respondidos', s.totalRespondidos);
+    set2('stat-bloqueados',  s.totalBloqueados);
+    set2('stat-disponibles', s.totalDisponibles);
+    renderActividad(s.actividad);
+    renderBloqueados(s.bloqueados);
+  } catch(e){ console.error(e); }
+}
+
+function renderActividad(lista) {
+  const plats = ['v-overview','v-bot_fb'].map(id=>document.getElementById(id));
+  const html = (lista||[]).map(a=>`
+    <div class="act-row">
+      <div class="act-av ${a.accion==='bloqueado'?'av-block':'av-reply'}">${a.accion==='bloqueado'?'🚫':'💬'}</div>
+      <div>
+        <div class="act-user">@${a.usuario||'usuario'} <span class="act-time">· ${tiempoRelativo(a.created_at)}</span></div>
+        <div class="act-text">${a.mensaje||''}</div>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.actividad-container').forEach(el=>el.innerHTML=html||'<p style="color:var(--muted);font-size:13px">Sin actividad aún.</p>');
+}
+
+function renderBloqueados(lista) {
+  const el = document.getElementById('lista-bloqueados');
+  if(!el) return;
+  el.innerHTML = (lista||[]).map(b=>`
+    <div class="bl-row">
+      <div class="act-av av-block">🚫</div>
+      <div style="flex:1">
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:13px;font-weight:600">@${b.usuario_nombre||b.usuario_id}</span>
+          <span class="${b.plataforma==='instagram'?'pl-ig':'pl-fb'}">${b.plataforma||'facebook'}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${b.razon||''}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="desbloquear(${b.id})">Desbloquear</button>
+    </div>`).join('') || '<p style="color:var(--muted);font-size:13px;padding:10px 0">No hay usuarios bloqueados.</p>';
+}
+
+async function desbloquear(id){
+  await api('/api/stats/bloqueados/'+id,{method:'DELETE'});
+  toast('Usuario desbloqueado');
+  loadStats();
+}
+
+function tiempoRelativo(dt){
+  const diff=Math.floor((Date.now()-new Date(dt).getTime())/1000);
+  if(diff<60) return diff+'s';
+  if(diff<3600) return Math.floor(diff/60)+'min';
+  return Math.floor(diff/3600)+'h';
+}
+
+// ── TERRENOS ──────────────────────────────────────────────────────────────────
+async function loadTerrenos(){
+  DB = await api('/api/terrenos');
+  render();
+}
+
+function render() {
+  const el = document.getElementById('terrenos-lista');
+  if(!DB.length){
+    el.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted)"><div style="font-size:40px;margin-bottom:12px">🏞️</div><div style="font-size:14px">No hay terrenos. Agrega el primero.</div></div>';
+    return;
+  }
+  el.innerHTML = DB.map(t=>`
+    <div class="tc">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="tc-nombre">${t.nombre}</span>
+            <span class="estado-badge" style="background:${EB[t.estado]};color:${EC[t.estado]}">${t.estado}</span>
+          </div>
+          <div class="info-box">
+            <div class="info-lbl">Info que usa Claude</div>
+            <div class="info-txt">${t.info}</div>
+          </div>
+          <div class="adset-row">
+            <span style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.8px">Ad Set:</span>
+            <span class="adset-val">"${t.adset}"</span>
+            <span style="font-size:10px;color:#ccc">← bot lo detecta automático</span>
+          </div>
+          <div class="tc-stats">
+            <span class="tc-stat">💬 <strong>${t.comentarios||0}</strong> comentarios</span>
+            <span class="tc-stat">✅ <strong>${t.respondidos||0}</strong> respondidos</span>
+            <span class="tc-stat">🚫 <strong>${t.bloqueados||0}</strong> bloqueados</span>
+          </div>
+        </div>
+        <div class="tc-actions">
+          <button class="btn btn-ghost btn-sm" onclick="editar('${t.id}')">✏️ Editar</button>
+          <button class="btn btn-red btn-sm" onclick="eliminar('${t.id}')">🗑</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleForm(){
+  const f=document.getElementById('terreno-form');
+  if(f.classList.toggle('open')){
+    document.getElementById('f-editid').value='';
+    document.getElementById('form-titulo').textContent='➕ Nuevo terreno';
+    ['f-nombre','f-adset','f-info'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('f-estado').value='Disponible';
+  }
+}
+
+function cerrarForm(){document.getElementById('terreno-form').classList.remove('open')}
+
+async function guardar(){
+  const n=v('f-nombre'),a=v('f-adset'),e=v('f-estado'),i=v('f-info'),id=v('f-editid');
+  if(!n||!i){toast('⚠️ Nombre e información requeridos',1);return}
+  try {
+    if(id){
+      await api('/api/terrenos/'+id,{method:'PUT',body:JSON.stringify({nombre:n,adset:a,estado:e,info:i})});
+      toast('💾 Cambios guardados');
+    } else {
+      await api('/api/terrenos',{method:'POST',body:JSON.stringify({nombre:n,adset:a,estado:e,info:i})});
+      toast('✅ Terreno agregado');
+    }
+    cerrarForm(); loadTerrenos();
+  } catch(e){ toast('Error: '+e.message,1); }
+}
+
+function editar(id){
+  const t=DB.find(x=>x.id===id);if(!t)return;
+  set('f-nombre',t.nombre);set('f-adset',t.adset);set('f-estado',t.estado);set('f-info',t.info);set('f-editid',t.id);
+  document.getElementById('form-titulo').textContent='✏️ Editando: '+t.nombre;
+  document.getElementById('terreno-form').classList.add('open');
+  document.getElementById('terreno-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function eliminar(id){
+  if(!confirm('¿Eliminar este terreno?'))return;
+  await api('/api/terrenos/'+id,{method:'DELETE'});
+  toast('Eliminado',1); loadTerrenos();
+}
+
+// ── ADS (datos estáticos por ahora, se conecta a Meta Ads API en fase 2) ──────
+const ADS={hoy:{g:"$18.400",c:3,p:"$6.133",l:1},semana:{g:"$124.000",c:21,p:"$5.904",l:8},mes:{g:"$487.000",c:89,p:"$5.472",l:31},todo:{g:"$1.240.000",c:247,p:"$5.020",l:86}};
+function periodo(k,btn){
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const d=ADS[k];
+  set2('a-gasto',d.g);set2('a-conv',d.c);set2('a-cpc',d.p);set2('a-leads',d.l);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadStats();
+setInterval(loadStats, 30000);
+</script>
+</body>
+</html>
