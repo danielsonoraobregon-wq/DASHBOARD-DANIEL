@@ -3,157 +3,274 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TerrenosBot · Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Terreno Daniel · Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f0ede6;--white:#fff;--border:#e8e4db;
-  --dark:#141410;--dark2:#1c1c14;
-  --gold:#c8a96e;--green:#00e87a;--red:#ff5e7a;--blue:#7b9fff;--orange:#ff9f6b;
-  --text:#1a1a1a;--muted:#aaa;--faint:#f5f2ec;
+  --bg:#f5f5f7;
+  --white:#ffffff;
+  --border:rgba(0,0,0,.07);
+  --dark:#0a0a0a;
+  --dark2:#161616;
+  --gold:#c8973a;
+  --green:#34c759;
+  --red:#ff3b30;
+  --blue:#0071e3;
+  --orange:#ff9500;
+  --text:#1d1d1f;
+  --text2:#6e6e73;
+  --muted:#86868b;
+  --faint:#f5f5f7;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 2px 12px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 8px 30px rgba(0,0,0,.09),0 2px 8px rgba(0,0,0,.05);
 }
-*{box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#ccc8be;border-radius:2px}
-button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .15s}
-button:hover{filter:brightness(.92)}
-input,select,textarea{font-family:'DM Sans',sans-serif;outline:none}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:4px}
+button{font-family:'Inter',system-ui,sans-serif;cursor:pointer;border:none;transition:all .18s ease}
+input,select,textarea{font-family:'Inter',system-ui,sans-serif;outline:none}
 
-/* SIDEBAR */
-#sidebar{width:220px;background:var(--dark);color:#f0ede6;display:flex;flex-direction:column;flex-shrink:0;height:100vh}
-.sb-logo{padding:22px 20px 16px;border-bottom:1px solid #1e1e16}
-.sb-logo h1{font-family:'Playfair Display',serif;font-weight:900;font-size:19px}
+/* ── SIDEBAR ──────────────────────────────── */
+#sidebar{width:224px;background:var(--dark);display:flex;flex-direction:column;flex-shrink:0;height:100vh}
+.sb-logo{padding:26px 20px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sb-logo h1{font-size:17px;font-weight:700;letter-spacing:-.3px;color:#fff}
 .sb-logo h1 span{color:var(--gold)}
-.sb-logo p{font-size:9px;color:#444;margin-top:3px;letter-spacing:1.2px;text-transform:uppercase}
-nav{padding:10px;flex:1;overflow-y:auto}
-.nav-label{font-size:9px;color:#333;letter-spacing:1.5px;text-transform:uppercase;padding:8px 10px 5px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;width:100%;background:transparent;color:#555;font-size:13px;font-weight:400;text-align:left;margin-bottom:2px}
-.nav-item.active{background:var(--gold);color:var(--dark);font-weight:700}
-.nav-item:hover:not(.active):not(.disabled){background:#1e1e16;color:#aaa}
-.nav-item.disabled{cursor:default;opacity:.35}
-.nav-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
-.nav-badge{font-size:9px;background:#1e1e16;color:#333;padding:2px 7px;border-radius:10px;margin-left:auto}
-.sb-footer{padding:14px 18px;border-top:1px solid #1e1e16}
-.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;margin-right:7px;vertical-align:middle}
-.sb-footer p{font-size:11px;color:#555;margin-bottom:4px}
-.sb-footer small{font-size:10px;color:#2e2e20}
+.sb-logo p{font-size:10px;color:rgba(255,255,255,.2);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500}
+nav{padding:12px 10px;flex:1;overflow-y:auto}
+.nav-label{font-size:10px;color:rgba(255,255,255,.15);letter-spacing:1.5px;text-transform:uppercase;padding:10px 10px 6px;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);width:100%;background:transparent;color:rgba(255,255,255,.35);font-size:13px;font-weight:400;text-align:left;margin-bottom:2px}
+.nav-item.active{background:rgba(255,255,255,.08);color:#fff;font-weight:600}
+.nav-item:hover:not(.active):not(.disabled){background:rgba(255,255,255,.05);color:rgba(255,255,255,.6)}
+.nav-item.disabled{cursor:default;opacity:.25}
+.nav-icon{font-size:14px;width:22px;text-align:center;flex-shrink:0;opacity:.8}
+.nav-badge{font-size:9px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.2);padding:2px 7px;border-radius:20px;margin-left:auto;font-weight:500}
+.sb-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,.05)}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block;margin-right:7px;vertical-align:middle}
+.sb-footer p{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:3px}
+.sb-footer small{font-size:10px;color:rgba(255,255,255,.12);font-weight:400}
 
-/* MAIN */
-#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-#topbar{background:var(--white);border-bottom:1px solid var(--border);padding:13px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-#topbar-crumb{font-size:13px;color:var(--muted)}
+/* ── MAIN ─────────────────────────────────── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+#topbar{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10}
+#topbar-crumb{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:-.1px}
 .topbar-wa{font-size:12px;color:var(--muted)}
 .topbar-wa span{color:var(--gold);font-weight:600}
-#content{flex:1;overflow-y:auto;padding:24px 28px}
+#content{flex:1;overflow-y:auto;padding:28px 32px}
 
-/* VISTAS */
+/* ── VISTAS ───────────────────────────────── */
 .vista{display:none}.vista.active{display:block}
 
-/* GRIDS */
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+/* ── GRIDS ────────────────────────────────── */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
 
-/* CARDS */
-.card{background:var(--white);border:1px solid var(--border);border-radius:13px;padding:18px 20px;margin-bottom:14px}
+/* ── CARDS ────────────────────────────────── */
+.card{background:var(--white);border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow)}
 .card:last-child{margin-bottom:0}
-.stat-card{padding:14px 16px}
-.stat-icon{font-size:20px;margin-bottom:6px}
-.stat-val{font-family:'Playfair Display',serif;font-weight:800;font-size:30px;line-height:1;margin-bottom:5px}
-.stat-lbl{font-size:11px;color:var(--muted)}
-.card-title{font-family:'Playfair Display',serif;font-weight:700;font-size:15px;margin-bottom:14px}
+.stat-card{padding:18px 20px}
+.stat-icon{font-size:18px;margin-bottom:8px;opacity:.7}
+.stat-val{font-size:32px;font-weight:700;line-height:1;margin-bottom:6px;letter-spacing:-1px}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.1px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:16px;color:var(--text);letter-spacing:-.2px}
 
-/* SECTION TITLE */
-.page-title{font-family:'Playfair Display',serif;font-weight:800;font-size:22px;margin-bottom:18px}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+/* ── PAGE HEADERS ─────────────────────────── */
+.page-title{font-size:24px;font-weight:700;margin-bottom:22px;color:var(--text);letter-spacing:-.5px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
 .page-header .page-title{margin:0}
 
-/* ACTIVIDAD */
-.act-row{display:flex;gap:12px;align-items:flex-start;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--faint)}
+/* ── ACTIVIDAD ────────────────────────────── */
+.act-row{display:flex;gap:12px;align-items:flex-start;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border)}
 .act-row:last-child{border:none;padding:0;margin:0}
-.act-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.av-reply{background:#f0fdf6}.av-block{background:#fff0f2}
-.act-user{font-size:12px;font-weight:600}
+.act-av{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.av-reply{background:#f0fdf4}.av-block{background:#fff1f1}
+.act-user{font-size:12px;font-weight:600;color:var(--text)}
 .act-time{color:var(--muted);font-weight:400}
-.act-text{font-size:12px;color:#777;margin-top:3px;line-height:1.5}
+.act-text{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.6}
 
-/* INNER TABS */
-.inner-tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content}
-.itab{background:transparent;color:var(--muted);font-size:12px;font-weight:400;padding:7px 18px;border-radius:8px}
-.itab.active{background:var(--dark2);color:#f0ede6;font-weight:600}
+/* ── INNER TABS ───────────────────────────── */
+.inner-tabs{display:flex;gap:3px;margin-bottom:18px;background:rgba(0,0,0,.04);border-radius:var(--radius-sm);padding:3px;width:fit-content}
+.itab{background:transparent;color:var(--muted);font-size:12px;font-weight:500;padding:7px 18px;border-radius:8px;transition:all .15s}
+.itab.active{background:var(--white);color:var(--text);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.1)}
 
-/* TERRENO CARDS */
-.tc{background:var(--white);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:10px;transition:box-shadow .2s}
-.tc:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
-.tc-nombre{font-family:'Playfair Display',serif;font-weight:700;font-size:16px}
-.estado-badge{font-size:11px;padding:2px 10px;border-radius:20px;font-weight:600}
-.info-box{background:var(--faint);border-radius:9px;padding:10px 13px;border:1px solid #ebe7df;margin-top:10px}
-.info-lbl{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
-.info-txt{font-size:12px;color:#666;line-height:1.7}
-.adset-row{margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.adset-val{font-size:12px;font-weight:600;color:var(--gold);background:#fdf6eb;padding:2px 10px;border-radius:20px;border:1px solid #ead9b0}
-.tc-stats{display:flex;gap:14px;margin-top:8px}
-.tc-stat{font-size:11px;color:var(--muted)}
-.tc-stat strong{color:#555}
+/* ── TERRENO CARDS ────────────────────────── */
+.tc{background:var(--white);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow);transition:box-shadow .2s}
+.tc:hover{box-shadow:var(--shadow-md)}
+.tc-nombre{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--text)}
+.estado-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.1px}
+.info-box{background:var(--faint);border-radius:var(--radius-sm);padding:11px 14px;margin-top:12px}
+.info-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-weight:600}
+.info-txt{font-size:12px;color:var(--text2);line-height:1.7}
+.adset-row{margin-top:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.adset-val{font-size:12px;font-weight:600;color:var(--gold);background:#fdf6eb;padding:3px 10px;border-radius:20px}
+.tc-stats{display:flex;gap:16px;margin-top:10px}
+.tc-stat{font-size:11px;color:var(--muted);font-weight:500}
+.tc-stat strong{color:var(--text2);font-weight:700}
 .tc-actions{display:flex;gap:6px;flex-shrink:0}
 
-/* FORM */
-.form-card{background:var(--white);border:2px solid var(--gold);border-radius:13px;padding:20px;margin-bottom:18px;display:none}
+/* ── FORM ─────────────────────────────────── */
+.form-card{background:var(--white);border:1.5px solid var(--gold);border-radius:var(--radius);padding:22px;margin-bottom:20px;display:none;box-shadow:0 4px 20px rgba(200,151,58,.1)}
 .form-card.open{display:block}
-.form-card-title{font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:var(--gold);margin-bottom:14px}
-.fg{margin-bottom:12px}
-.fg label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
-.fi{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:#faf9f6;color:var(--text)}
-.fi:focus{border-color:var(--gold)}
-.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.form-card-title{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:16px;letter-spacing:-.2px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-weight:600}
+.fi{width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;font-size:13px;background:#fafafa;color:var(--text);transition:border-color .15s}
+.fi:focus{border-color:var(--gold);background:var(--white)}
+.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 
-/* BUTTONS */
-.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600}
+/* ── BUTTONS ──────────────────────────────── */
+.btn{padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;letter-spacing:-.1px}
 .btn:hover{transform:translateY(-1px)}
-.btn-dark{background:var(--dark2);color:#f0ede6}
-.btn-ghost{background:var(--faint);color:#888}
-.btn-red{background:#fff0f2;color:var(--red);border:1px solid #fad7d7}
-.btn-sm{padding:6px 12px;font-size:12px}
+.btn:active{transform:translateY(0)}
+.btn-dark{background:var(--dark);color:#fff}
+.btn-ghost{background:rgba(0,0,0,.04);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(0,0,0,.07)}
+.btn-red{background:#fff1f1;color:var(--red)}
+.btn-sm{padding:6px 12px;font-size:11px;font-weight:600}
 
-/* BLOQUEADOS */
-.bl-row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--faint)}
+/* ── BLOQUEADOS ───────────────────────────── */
+.bl-row{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}
 .bl-row:last-child{border:none}
-.pl-ig{font-size:10px;padding:2px 8px;border-radius:20px;background:#fce4f8;color:#c13584}
-.pl-fb{font-size:10px;padding:2px 8px;border-radius:20px;background:#e8f0fd;color:#1877f2}
+.pl-ig{font-size:10px;padding:2px 8px;border-radius:20px;background:#fce4f8;color:#c13584;font-weight:600}
+.pl-fb{font-size:10px;padding:2px 8px;border-radius:20px;background:#e8f0fd;color:#1877f2;font-weight:600}
 
-/* ADS PERIODOS */
-.ptabs{display:flex;gap:5px;margin-bottom:18px}
-.ptab{border:1px solid var(--border);background:var(--white);color:#888;font-size:12px;padding:7px 16px;border-radius:8px;font-weight:400}
-.ptab.active{background:var(--dark2);color:#f0ede6;border-color:var(--dark2);font-weight:700}
+/* ── WA LEADS ─────────────────────────────── */
+.lead-row{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .12s;margin:-2px -10px}
+.lead-row:hover{background:var(--faint)}
+.lead-info{flex:1;min-width:0}
+.lead-nombre{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.1px}
+.lead-ultimo{font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lead-badge{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;flex-shrink:0}
+.badge-nuevo{background:#f0f4ff;color:var(--blue)}
+.badge-interesado{background:#fdf6eb;color:var(--gold)}
+.badge-presupuesto_ok{background:#f0fdf4;color:var(--green)}
+.badge-visita_pendiente,.badge-visita_agendada{background:#fff8f0;color:var(--orange)}
+.wa-msg{padding:10px 14px;border-radius:12px;font-size:12px;line-height:1.6;max-width:80%}
+.wa-msg-user{background:var(--faint);align-self:flex-start;border-bottom-left-radius:3px}
+.wa-msg-bot{background:#dcf8c6;align-self:flex-end;border-bottom-right-radius:3px}
+.wa-msg-role{font-size:10px;color:var(--muted);margin-bottom:3px;font-weight:500}
 
-/* TOAST */
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark2);color:#f0ede6;padding:11px 24px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.25);z-index:9999;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none}
+/* ── ADS PERIODOS ─────────────────────────── */
+.ptabs{display:flex;gap:6px;margin-bottom:20px}
+.ptab{border:1.5px solid var(--border);background:var(--white);color:var(--muted);font-size:12px;padding:7px 16px;border-radius:20px;font-weight:500;transition:all .15s}
+.ptab.active{background:var(--dark);color:#fff;border-color:var(--dark);font-weight:600}
+.ptab:hover:not(.active){border-color:rgba(0,0,0,.15);color:var(--text)}
+
+/* ── TOAST ────────────────────────────────── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:#fff;padding:12px 24px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:9999;opacity:0;transition:all .25s cubic-bezier(.4,0,.2,1);white-space:nowrap;pointer-events:none;letter-spacing:-.1px}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#toast.err{background:#c0392b}
+#toast.err{background:#ff3b30}
 
-@media(max-width:680px){
-  #sidebar{width:56px}
-  .nav-item span:not(.nav-icon){display:none}
-  .sb-logo p,.sb-footer p,.sb-footer small{display:none}
-  .sb-logo h1{font-size:13px}
-  .g4{grid-template-columns:1fr 1fr}
-  #content{padding:14px}
+/* ── ANÁLISIS MARKDOWN ────────────────────── */
+#analisis-content h2{font-size:14px;font-weight:700;color:var(--text);margin:20px 0 8px;letter-spacing:-.2px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+#analisis-content h2:first-child{margin-top:0}
+#analisis-content p{margin-bottom:10px;color:var(--text2)}
+#analisis-content ul,#analisis-content ol{padding-left:20px;margin-bottom:10px}
+#analisis-content li{margin-bottom:5px;color:var(--text2)}
+#analisis-content strong{color:var(--text);font-weight:700}
+#analisis-content em{color:var(--muted)}
+#analisis-content code{background:var(--faint);padding:2px 6px;border-radius:5px;font-size:12px;font-family:monospace}
+
+/* ── CALCULADORA ──────────────────────────── */
+#v-calculadora{
+  --c-verde:#2C4A3E;--c-verde-claro:#3D6B5A;--c-verde-suave:#E8F0EC;
+  --c-dorado:#C4975A;--c-dorado-claro:#D4AB74;--c-crema:#FAF7F2;
+  --c-texto:#1A1A1A;--c-texto-suave:#5A5A5A;--c-blanco:#FFFFFF;
+}
+#v-calculadora .c-hero{background:linear-gradient(165deg,var(--c-verde) 0%,var(--c-verde-claro) 50%,#4A7C68 100%);padding:2rem 1.5rem 3rem;text-align:center;border-radius:var(--radius);margin-bottom:20px;position:relative;overflow:hidden}
+#v-calculadora .c-hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(196,151,90,.12) 0%,transparent 60%);pointer-events:none}
+#v-calculadora .c-logo-text{font-family:'Playfair Display',serif;font-size:.8rem;letter-spacing:4px;text-transform:uppercase;color:var(--c-dorado-claro);margin-bottom:.4rem}
+#v-calculadora .c-hero h2{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:600;color:var(--c-blanco);line-height:1.2;margin-bottom:.4rem}
+#v-calculadora .c-hero p{font-size:.82rem;color:rgba(255,255,255,.65);font-weight:300}
+#v-calculadora .c-wrap{max-width:520px;margin:0 auto}
+#v-calculadora .c-lot-selector{display:flex;gap:.5rem;margin-bottom:1.25rem}
+#v-calculadora .c-lot-btn{flex:1;padding:.85rem .5rem;border:2px solid #D8D3CB;border-radius:12px;background:var(--c-blanco);cursor:pointer;text-align:center;transition:all .3s}
+#v-calculadora .c-lot-btn:hover{border-color:var(--c-verde-claro)}
+#v-calculadora .c-lot-btn.active{border-color:var(--c-verde);background:var(--c-verde-suave);box-shadow:0 4px 20px rgba(44,74,62,.15)}
+#v-calculadora .c-lot-btn.premium{background:linear-gradient(135deg,var(--c-blanco) 0%,#FFF8EE 100%)}
+#v-calculadora .c-lot-btn.premium.active{border-color:var(--c-dorado);background:linear-gradient(135deg,#FFF8EE 0%,#FFF0DC 100%);box-shadow:0 4px 20px rgba(196,151,90,.2)}
+#v-calculadora .c-lot-name{font-family:'Playfair Display',serif;font-size:.92rem;font-weight:600;color:var(--c-verde);display:block}
+#v-calculadora .c-lot-m2{font-size:.68rem;color:var(--c-texto-suave);margin-top:.12rem;display:block}
+#v-calculadora .c-lot-tag{display:inline-block;font-size:.5rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:var(--c-dorado);color:var(--c-blanco);padding:.12rem .45rem;border-radius:20px;margin-top:.3rem}
+#v-calculadora .c-price-card{background:var(--c-blanco);border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 2px 16px rgba(0,0,0,.04)}
+#v-calculadora .c-price-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem}
+#v-calculadora .c-price-label{font-size:.78rem;color:var(--c-texto-suave)}
+#v-calculadora .c-price-original{font-size:.88rem;color:#B0A090;text-decoration:line-through}
+#v-calculadora .c-price-actual{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--c-verde)}
+#v-calculadora .c-price-ahorro{display:inline-block;font-size:.68rem;font-weight:600;color:var(--c-verde-claro);background:var(--c-verde-suave);padding:.18rem .55rem;border-radius:20px;margin-top:.25rem}
+#v-calculadora .c-slider-section{background:var(--c-blanco);border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 2px 16px rgba(0,0,0,.04)}
+#v-calculadora .c-slider-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.8rem}
+#v-calculadora .c-slider-title{font-size:.78rem;font-weight:500;color:var(--c-texto-suave);text-transform:uppercase;letter-spacing:1px}
+#v-calculadora .c-slider-value{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--c-verde)}
+#v-calculadora input[type="range"].c-range{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--c-verde) 0%,var(--c-verde) var(--progress,20%),#E0D9CF var(--progress,20%),#E0D9CF 100%);outline:none;margin:.4rem 0}
+#v-calculadora input[type="range"].c-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:var(--c-blanco);border:3px solid var(--c-verde);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:transform .2s}
+#v-calculadora input[type="range"].c-range::-webkit-slider-thumb:active{transform:scale(1.15)}
+#v-calculadora .c-slider-range{display:flex;justify-content:space-between;font-size:.68rem;color:#B0A090;margin-top:.2rem}
+#v-calculadora .c-results-card{background:linear-gradient(165deg,var(--c-verde) 0%,var(--c-verde-claro) 100%);border-radius:14px;padding:1.5rem 1.25rem;margin-bottom:1rem;position:relative;overflow:hidden}
+#v-calculadora .c-results-card::before{content:'';position:absolute;top:-30%;right:-20%;width:60%;height:160%;background:radial-gradient(ellipse,rgba(196,151,90,.1) 0%,transparent 70%);pointer-events:none}
+#v-calculadora .c-results-title{font-size:.68rem;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--c-dorado-claro);margin-bottom:.9rem;position:relative}
+#v-calculadora .c-mensualidad-display{text-align:center;margin-bottom:1rem;position:relative}
+#v-calculadora .c-mensualidad-label{font-size:.72rem;color:rgba(255,255,255,.6);margin-bottom:.2rem}
+#v-calculadora .c-mensualidad-amount{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:700;color:var(--c-blanco);line-height:1}
+#v-calculadora .c-mensualidad-periodo{font-size:.78rem;color:rgba(255,255,255,.5);margin-top:.2rem}
+#v-calculadora .c-result-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-top:1px solid rgba(255,255,255,.1)}
+#v-calculadora .c-result-row:first-child{border-top:none}
+#v-calculadora .c-result-label{font-size:.78rem;color:rgba(255,255,255,.7)}
+#v-calculadora .c-result-value{font-size:.88rem;font-weight:600;color:var(--c-blanco)}
+#v-calculadora .c-benefits{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.25rem}
+#v-calculadora .c-benefit{background:var(--c-blanco);border-radius:12px;padding:.9rem;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.03)}
+#v-calculadora .c-benefit-icon{font-size:1.4rem;margin-bottom:.35rem}
+#v-calculadora .c-benefit-text{font-size:.68rem;color:var(--c-texto-suave);line-height:1.3}
+#v-calculadora .c-cta-btn{display:block;width:100%;padding:1rem;background:linear-gradient(135deg,var(--c-dorado) 0%,var(--c-dorado-claro) 100%);color:var(--c-blanco);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;text-decoration:none;text-align:center;box-shadow:0 4px 20px rgba(196,151,90,.35);transition:all .3s;margin-bottom:.65rem}
+#v-calculadora .c-cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(196,151,90,.45)}
+#v-calculadora .c-disclaimer{text-align:center;font-size:.62rem;color:#B0A090;line-height:1.4;padding:0 1rem}
+/* ── HAMBURGER ────────────────────────────── */
+#menu-btn{display:none;background:none;border:none;font-size:20px;cursor:pointer;padding:4px 6px;color:var(--text);border-radius:6px}
+#menu-btn:hover{background:rgba(0,0,0,.05)}
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99;backdrop-filter:blur(2px)}
+
+/* ── MOBILE ───────────────────────────────── */
+@media(max-width:768px){
+  body{flex-direction:column;height:auto;overflow:auto}
+  #sidebar{position:fixed;left:-240px;top:0;bottom:0;width:220px;z-index:100;transition:left .22s cubic-bezier(.4,0,.2,1)}
+  #sidebar.open{left:0;box-shadow:8px 0 40px rgba(0,0,0,.3)}
+  #sidebar-overlay.open{display:block}
+  #menu-btn{display:block}
+  #main{flex:1;min-height:100vh}
+  #topbar{padding:12px 16px}
+  #content{padding:14px 16px;overflow-y:visible}
+  .g4{grid-template-columns:1fr 1fr;gap:10px}
+  .g2{grid-template-columns:1fr;gap:10px}
+  .stat-val{font-size:26px}
+  .card{padding:16px 18px;border-radius:14px}
+  .page-title{font-size:20px}
+  .inner-tabs{flex-wrap:wrap;gap:4px}
+  .itab{font-size:11px;padding:6px 13px}
+  #bot_fb-moderacion > div{grid-template-columns:1fr !important}
+  .lead-row{flex-wrap:wrap}
+}
+@media(max-width:400px){
+  .g4{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-val{font-size:22px}
+  .ptabs{flex-wrap:wrap;gap:4px}
+  .ptab{font-size:11px;padding:6px 12px}
 }
 </style>
 </head>
 <body>
 
-<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<!-- ── SIDEBAR ──────────────────────────────────────────── -->
 <div id="sidebar">
   <div class="sb-logo">
-    <h1>Terrenos<span>Bot</span></h1>
+    <h1>Terreno <span>Daniel</span></h1>
     <p>Dashboard</p>
   </div>
   <nav>
     <div class="nav-label">Módulos</div>
     <button class="nav-item active" onclick="ir('overview',this)">
-      <span class="nav-icon">⬛</span><span>Overview</span>
+      <span class="nav-icon">◼</span><span>Overview</span>
     </button>
     <button class="nav-item" onclick="ir('bot_fb',this)">
       <span class="nav-icon">💬</span><span>Bot FB + IG</span>
@@ -164,24 +281,29 @@ nav{padding:10px;flex:1;overflow-y:auto}
     <button class="nav-item" onclick="ir('ads',this)">
       <span class="nav-icon">📣</span><span>Facebook Ads</span>
     </button>
-    <button class="nav-item disabled">
-      <span class="nav-icon">📱</span><span>Bot WhatsApp</span><span class="nav-badge">PRONTO</span>
+    <button class="nav-item" onclick="ir('whatsapp',this)">
+      <span class="nav-icon">📱</span><span>Bot WhatsApp</span>
     </button>
-    <button class="nav-item disabled">
-      <span class="nav-icon">📊</span><span>Estadísticas</span><span class="nav-badge">PRONTO</span>
+    <button class="nav-item" onclick="ir('calculadora',this)">
+      <span class="nav-icon">🧮</span><span>Calculadora</span>
     </button>
   </nav>
   <div class="sb-footer">
-    <p><span class="sb-dot"></span>Bot activo 24/7</p>
+    <p><span id="encino-dot" class="sb-dot" style="background:#444;box-shadow:none"></span><span id="encino-status" style="color:rgba(255,255,255,.3)">Verificando...</span></p>
     <small>Railway · Claude · Meta</small>
   </div>
 </div>
 
-<!-- ── MAIN ───────────────────────────────────────────────── -->
+<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ── MAIN ─────────────────────────────────────────────── -->
 <div id="main">
   <div id="topbar">
-    <div id="topbar-crumb">⬛ Overview</div>
-    <div class="topbar-wa">WhatsApp: <span>wa.me/573001234567</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button id="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div id="topbar-crumb">Overview</div>
+    </div>
+    <div class="topbar-wa">WhatsApp: <span>8144002256</span></div>
   </div>
   <div id="content">
 
@@ -189,10 +311,26 @@ nav{padding:10px;flex:1;overflow-y:auto}
     <div class="vista active" id="v-overview">
       <div class="page-title">Overview</div>
       <div class="g4">
-        <div class="card stat-card"><div class="stat-icon">💬</div><div class="stat-val" id="stat-comentarios" style="color:var(--blue)">—</div><div class="stat-lbl">Comentarios totales</div></div>
-        <div class="card stat-card"><div class="stat-icon">✅</div><div class="stat-val" id="stat-respondidos" style="color:var(--green)">—</div><div class="stat-lbl">Respondidos por bot</div></div>
-        <div class="card stat-card"><div class="stat-icon">🚫</div><div class="stat-val" id="stat-bloqueados" style="color:var(--red)">—</div><div class="stat-lbl">Usuarios bloqueados</div></div>
-        <div class="card stat-card"><div class="stat-icon">🏞️</div><div class="stat-val" id="stat-disponibles" style="color:var(--gold)">—</div><div class="stat-lbl">Terrenos disponibles</div></div>
+        <div class="card stat-card">
+          <div class="stat-icon">💬</div>
+          <div class="stat-val" id="stat-comentarios" style="color:var(--blue)">—</div>
+          <div class="stat-lbl">Comentarios totales</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-val" id="stat-respondidos" style="color:var(--green)">—</div>
+          <div class="stat-lbl">Respondidos por bot</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">🚫</div>
+          <div class="stat-val" id="stat-bloqueados" style="color:var(--red)">—</div>
+          <div class="stat-lbl">Usuarios bloqueados</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">🏞️</div>
+          <div class="stat-val" id="stat-disponibles" style="color:var(--gold)">—</div>
+          <div class="stat-lbl">Terrenos disponibles</div>
+        </div>
       </div>
       <div class="card">
         <div class="card-title">Actividad reciente</div>
@@ -204,24 +342,61 @@ nav{padding:10px;flex:1;overflow-y:auto}
     <div class="vista" id="v-bot_fb">
       <div class="page-title">Bot FB + IG</div>
       <div class="g4">
-        <div class="card stat-card"><div class="stat-icon">✅</div><div class="stat-val" style="color:var(--green)">22</div><div class="stat-lbl">Respondidos</div></div>
-        <div class="card stat-card"><div class="stat-icon">⚡</div><div class="stat-val" style="color:var(--blue)">1.8s</div><div class="stat-lbl">Tiempo resp.</div></div>
-        <div class="card stat-card"><div class="stat-icon">🎯</div><div class="stat-val" style="color:var(--gold)">96%</div><div class="stat-lbl">Tasa respuesta</div></div>
-        <div class="card stat-card"><div class="stat-icon">📥</div><div class="stat-val" style="color:var(--muted)">0</div><div class="stat-lbl">En cola</div></div>
-      </div>
-      <div class="inner-tabs">
-        <button class="itab active" onclick="itab('bot_fb','actividad',this)">💬 Actividad</button>
-        <button class="itab" onclick="itab('bot_fb','bloqueador',this)">🚫 Bloqueador</button>
-      </div>
-      <div id="bot_fb-actividad">
-        <div class="card">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-            <div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)"></div>
-            <span style="font-weight:600;font-size:13px">Bot activo · responde en ~2 seg</span>
-          </div>
-          <div class="actividad-container"><p style="color:var(--muted);font-size:13px">Cargando...</p></div>
+        <div class="card stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-val" id="fb-respondidos" style="color:var(--green)">—</div>
+          <div class="stat-lbl">Respondidos</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">💬</div>
+          <div class="stat-val" id="fb-comentarios" style="color:var(--blue)">—</div>
+          <div class="stat-lbl">Comentarios totales</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-val" id="fb-tasa" style="color:var(--gold)">—</div>
+          <div class="stat-lbl">Tasa respuesta</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon">🚫</div>
+          <div class="stat-val" id="fb-bloqueados" style="color:var(--red)">—</div>
+          <div class="stat-lbl">Bloqueados</div>
         </div>
       </div>
+      <div class="inner-tabs">
+        <button class="itab active" onclick="itab('bot_fb','moderacion',this)">🛡 Moderación</button>
+        <button class="itab" onclick="itab('bot_fb','bloqueador',this)">🚫 Bloqueados</button>
+      </div>
+
+      <div id="bot_fb-moderacion">
+        <div style="display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start">
+          <!-- BLACKLIST -->
+          <div class="card" style="position:sticky;top:0">
+            <div class="card-title">🚫 Lista negra</div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <input id="bl-input" class="fi" placeholder="Ej: competencia, spam..." style="flex:1;font-size:12px">
+              <button class="btn btn-dark btn-sm" onclick="agregarPalabra()">+ Agregar</button>
+            </div>
+            <div style="margin-bottom:14px">
+              <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px;font-weight:600">Publicación (opcional)</label>
+              <select id="bl-adset" class="fi" style="font-size:12px">
+                <option value="">— Todas las publicaciones —</option>
+              </select>
+            </div>
+            <div id="bl-lista"><p style="color:var(--muted);font-size:13px">Cargando...</p></div>
+          </div>
+          <!-- COMENTARIOS -->
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div class="card-title" style="margin:0">💬 Últimos comentarios <span style="font-size:10px;color:var(--muted);font-weight:400">FB + IG</span></div>
+              <button class="btn btn-ghost btn-sm" onclick="loadComentarios()">↺ Actualizar</button>
+            </div>
+            <div id="comments-filtros" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"></div>
+            <div id="comentarios-lista"><p style="color:var(--muted);font-size:13px">Cargando...</p></div>
+          </div>
+        </div>
+      </div>
+
       <div id="bot_fb-bloqueador" style="display:none">
         <div class="card">
           <div class="card-title">Usuarios bloqueados</div>
@@ -244,22 +419,152 @@ nav{padding:10px;flex:1;overflow-y:auto}
           <div class="fg"><label>Estado</label><select class="fi" id="f-estado"><option>Disponible</option><option>Reservado</option><option>Vendido</option></select></div>
         </div>
         <div class="fg">
-          <label>Información del terreno <span style="color:var(--gold);text-transform:none;letter-spacing:0;font-size:10px">(Claude usa este texto para responder)</span></label>
+          <label>Información del terreno <span style="color:var(--gold);text-transform:none;letter-spacing:0;font-size:10px;font-weight:400">(Claude usa este texto para responder)</span></label>
           <textarea class="fi" id="f-info" rows="4" style="resize:vertical;line-height:1.6;margin-top:5px" placeholder="Escribe todo: precio, área, ubicación, servicios, condiciones de venta..."></textarea>
-          <div style="font-size:11px;color:#bbb;margin-top:4px">💡 Entre más completo, mejor responde el bot</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:5px;font-weight:500">💡 Entre más completo, mejor responde el bot</div>
         </div>
         <input type="hidden" id="f-editid">
         <div class="form-actions">
           <button class="btn btn-ghost" onclick="cerrarForm()">Cancelar</button>
-          <button class="btn btn-dark" onclick="guardar()">✅ Guardar</button>
+          <button class="btn btn-dark" onclick="guardar()">Guardar</button>
         </div>
       </div>
       <div id="terrenos-lista"></div>
     </div>
 
+    <!-- WHATSAPP -->
+    <div class="vista" id="v-whatsapp">
+      <div class="page-header">
+        <div class="page-title">Bot WhatsApp · Privada Encino</div>
+        <button class="btn btn-red" onclick="borrarMiHistorial()" style="font-size:12px">🗑 Borrar mi historial</button>
+      </div>
+      <div class="ptabs">
+        <button class="ptab active" onclick="waPeriodo('hoy',this)">Hoy</button>
+        <button class="ptab" onclick="waPeriodo('semana',this)">7 días</button>
+        <button class="ptab" onclick="waPeriodo('mes',this)">Este mes</button>
+        <button class="ptab" onclick="waPeriodo('todo',this)">Todo</button>
+      </div>
+      <div class="g4">
+        <div class="card stat-card"><div class="stat-icon">👤</div><div class="stat-val" id="wa-leads" style="color:var(--blue)">—</div><div class="stat-lbl">Leads totales</div></div>
+        <div class="card stat-card"><div class="stat-icon">🔥</div><div class="stat-val" id="wa-calientes" style="color:var(--red)">—</div><div class="stat-lbl">Leads calientes (A)</div></div>
+        <div class="card stat-card"><div class="stat-icon">📅</div><div class="stat-val" id="wa-visitas" style="color:var(--gold)">—</div><div class="stat-lbl">Visitas pendientes</div></div>
+        <div class="card stat-card"><div class="stat-icon">💰</div><div class="stat-val" id="wa-presupuestos" style="color:var(--green)">—</div><div class="stat-lbl">Presupuestos OK</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Leads y conversaciones</div>
+        <div id="wa-leads-lista"><p style="color:var(--muted);font-size:13px">Cargando...</p></div>
+      </div>
+      <div class="card" id="wa-historial-panel" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="card-title" style="margin:0" id="wa-historial-titulo">Conversación</div>
+          <button class="btn btn-ghost btn-sm" onclick="cerrarHistorial()">✕ Cerrar</button>
+        </div>
+        <div id="wa-historial-mensajes" style="max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+
+    <!-- CALCULADORA -->
+    <div class="vista" id="v-calculadora">
+      <div class="page-title">Calculadora · Privada Encino</div>
+      <div class="c-wrap">
+        <div class="c-hero">
+          <div class="c-logo-text">Privada Encino</div>
+          <h2>Calcula tu<br>plan de pagos</h2>
+          <p>Financiamiento directo · Sin banco · Sin intereses</p>
+        </div>
+
+        <div class="c-lot-selector">
+          <button class="c-lot-btn active" onclick="calcSelectLot(0)">
+            <span class="c-lot-name">Lote 1</span>
+            <span class="c-lot-m2">1,648 m²</span>
+          </button>
+          <button class="c-lot-btn" onclick="calcSelectLot(1)">
+            <span class="c-lot-name">Lote 3B</span>
+            <span class="c-lot-m2">1,700 m²</span>
+          </button>
+          <button class="c-lot-btn premium" onclick="calcSelectLot(2)">
+            <span class="c-lot-name">Lote 4</span>
+            <span class="c-lot-m2">1,632 m²</span>
+            <span class="c-lot-tag">Premium</span>
+          </button>
+        </div>
+
+        <div class="c-price-card">
+          <div class="c-price-row">
+            <span class="c-price-label">Precio original</span>
+            <span class="c-price-original" id="c-precioOriginal">$2,000,000</span>
+          </div>
+          <div class="c-price-row">
+            <span class="c-price-label">Precio de lanzamiento</span>
+          </div>
+          <div class="c-price-actual" id="c-precioActual">$1,700,000</div>
+          <span class="c-price-ahorro" id="c-ahorro">Ahorras $300,000</span>
+          <div style="margin-top:.5rem;font-size:.72rem;color:var(--muted)" id="c-lotInfo">38 × 38 m · Últimos 3 lotes disponibles</div>
+        </div>
+
+        <div class="c-slider-section">
+          <div class="c-slider-header">
+            <span class="c-slider-title">Tu enganche</span>
+            <span class="c-slider-value" id="c-engancheDisplay">$400,000</span>
+          </div>
+          <input type="range" class="c-range" id="c-engancheSlider" min="100000" max="1000000" step="50000" value="400000" oninput="calcUpdateCalc()">
+          <div class="c-slider-range"><span>$100,000</span><span>$1,000,000</span></div>
+        </div>
+
+        <div class="c-slider-section" id="c-pagoFinalSection">
+          <div class="c-slider-header">
+            <span class="c-slider-title">Pago final al liquidar</span>
+            <span class="c-slider-value" id="c-pagoFinalDisplay">$400,000</span>
+          </div>
+          <input type="range" class="c-range" id="c-pagoFinalSlider" min="0" max="800000" step="50000" value="400000" oninput="calcUpdateCalc()">
+          <div class="c-slider-range"><span>$0</span><span>$800,000</span></div>
+        </div>
+
+        <div class="c-results-card">
+          <div class="c-results-title">Tu plan de pagos</div>
+          <div class="c-mensualidad-display">
+            <div class="c-mensualidad-label">Mensualidad</div>
+            <div class="c-mensualidad-amount" id="c-mensualidad">$50,000</div>
+            <div class="c-mensualidad-periodo" id="c-periodoText">durante 18 meses</div>
+          </div>
+          <div>
+            <div class="c-result-row">
+              <span class="c-result-label">Enganche</span>
+              <span class="c-result-value" id="c-resEnganche">$400,000</span>
+            </div>
+            <div class="c-result-row">
+              <span class="c-result-label" id="c-resMensLabel">18 mensualidades de</span>
+              <span class="c-result-value" id="c-resMens">$50,000</span>
+            </div>
+            <div class="c-result-row" id="c-resPagoFinalRow">
+              <span class="c-result-label">Pago final</span>
+              <span class="c-result-value" id="c-resPagoFinal">$400,000</span>
+            </div>
+            <div class="c-result-row" style="border-top:1px solid rgba(255,255,255,.3);padding-top:.75rem;margin-top:.25rem">
+              <span class="c-result-label" style="color:var(--c-dorado-claro);font-weight:600">Total</span>
+              <span class="c-result-value" style="font-family:'Playfair Display',serif;font-size:1.05rem" id="c-resTotal">$1,700,000</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="c-benefits">
+          <div class="c-benefit"><div class="c-benefit-icon">🏦</div><div class="c-benefit-text">Sin banco<br>financiamiento directo</div></div>
+          <div class="c-benefit"><div class="c-benefit-icon">0%</div><div class="c-benefit-text">Cero intereses<br>mismo precio</div></div>
+          <div class="c-benefit"><div class="c-benefit-icon">📋</div><div class="c-benefit-text">Escritura ante notario<br>al liquidar</div></div>
+          <div class="c-benefit"><div class="c-benefit-icon">🌳</div><div class="c-benefit-text">Propiedad privada<br>no ejidal</div></div>
+        </div>
+
+        <a href="https://wa.me/528123200696?text=Hola%2C%20quiero%20informes%20sobre%20Privada%20Encino" class="c-cta-btn">Quiero más información →</a>
+        <p class="c-disclaimer">Plan de pagos flexible y negociable. Precios sujetos a disponibilidad. Privada Encino — La Morita, Montemorelos NL.</p>
+      </div>
+    </div>
+
     <!-- ADS -->
     <div class="vista" id="v-ads">
-      <div class="page-title">Facebook Ads</div>
+      <div class="page-header">
+        <div class="page-title">Facebook Ads</div>
+        <button class="btn btn-dark" onclick="analizarAds()" id="btn-analizar">🤖 Analizar con IA</button>
+      </div>
       <div class="ptabs">
         <button class="ptab" onclick="periodo('hoy',this)">Hoy</button>
         <button class="ptab active" onclick="periodo('semana',this)">7 días</button>
@@ -267,16 +572,30 @@ nav{padding:10px;flex:1;overflow-y:auto}
         <button class="ptab" onclick="periodo('todo',this)">Todo</button>
       </div>
       <div class="g2">
-        <div class="card stat-card"><div class="stat-icon">💸</div><div class="stat-val" id="a-gasto" style="color:var(--gold)">$124.000</div><div class="stat-lbl">Gasto total</div></div>
-        <div class="card stat-card"><div class="stat-icon">💬</div><div class="stat-val" id="a-conv" style="color:var(--green)">21</div><div class="stat-lbl">Conversaciones</div></div>
-        <div class="card stat-card"><div class="stat-icon">🎯</div><div class="stat-val" id="a-cpc" style="color:var(--blue)">$5.904</div><div class="stat-lbl">Costo por conversación</div></div>
-        <div class="card stat-card"><div class="stat-icon">🙋</div><div class="stat-val" id="a-leads" style="color:var(--orange)">8</div><div class="stat-lbl">Leads generados</div></div>
+        <div class="card stat-card"><div class="stat-icon">💸</div><div class="stat-val" id="a-gasto" style="color:var(--gold)">—</div><div class="stat-lbl">Gasto total</div></div>
+        <div class="card stat-card"><div class="stat-icon">👆</div><div class="stat-val" id="a-conv" style="color:var(--green)">—</div><div class="stat-lbl">Clicks al anuncio</div></div>
+        <div class="card stat-card"><div class="stat-icon">👁️</div><div class="stat-val" id="a-cpc" style="color:var(--blue)">—</div><div class="stat-lbl">Impresiones</div></div>
+        <div class="card stat-card"><div class="stat-icon">💰</div><div class="stat-val" id="a-leads" style="color:var(--orange)">—</div><div class="stat-lbl">Costo por click</div></div>
       </div>
-      <div class="card" style="display:flex;align-items:center;gap:10px">
-        <div style="width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);flex-shrink:0"></div>
+      <div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:0">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0"></div>
         <div>
-          <div style="font-size:13px;font-weight:600">Conectado a Meta Marketing API</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">Datos actualizados automáticamente cada 15 minutos</div>
+          <div style="font-size:13px;font-weight:600;letter-spacing:-.1px">Conectado a Meta Marketing API</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">Datos actualizados automáticamente cada 15 minutos</div>
+        </div>
+      </div>
+
+      <!-- Panel análisis IA -->
+      <div id="analisis-panel" style="display:none;margin-top:16px">
+        <div class="card" style="border-top:3px solid var(--gold)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div style="font-size:15px;font-weight:700;letter-spacing:-.2px">🤖 Análisis IA · <span id="analisis-periodo" style="color:var(--muted);font-weight:500;font-size:13px"></span></div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">Generado por Claude · Solo para uso interno</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('analisis-panel').style.display='none'">✕</button>
+          </div>
+          <div id="analisis-content" style="font-size:13px;line-height:1.75;color:var(--text2)"></div>
         </div>
       </div>
     </div>
@@ -289,7 +608,7 @@ nav{padding:10px;flex:1;overflow-y:auto}
 <script>
 const API = '';
 const EC={Disponible:"#2d9e6b",Reservado:"#b8860b",Vendido:"#c0392b"};
-const EB={Disponible:"#edfaf4",Reservado:"#fefae8",Vendido:"#fdecea"};
+const EB={Disponible:"#f0fdf4",Reservado:"#fefce8",Vendido:"#fff1f0"};
 let DB = [];
 
 // ── UTILS ─────────────────────────────────────────────────────────────────────
@@ -316,11 +635,15 @@ function ir(id, btn) {
   document.getElementById('topbar-crumb').textContent = btn.textContent.trim().replace('PRONTO','');
   if(id==='terrenos') loadTerrenos();
   if(id==='overview'||id==='bot_fb') loadStats();
+  if(id==='bot_fb') loadMod();
+  if(id==='whatsapp') loadWhatsapp();
+  if(id==='calculadora') { calcSelectLot(0); }
+  if(window.innerWidth<=768) closeSidebar();
 }
 
 // ── INNER TABS ────────────────────────────────────────────────────────────────
 function itab(vid, tab, btn) {
-  ['actividad','bloqueador'].forEach(t=>{
+  ['bloqueador','moderacion'].forEach(t=>{
     const el = document.getElementById(vid+'-'+t);
     if(el) el.style.display = t===tab?'block':'none';
   });
@@ -336,18 +659,30 @@ async function loadStats() {
     set2('stat-respondidos', s.totalRespondidos);
     set2('stat-bloqueados',  s.totalBloqueados);
     set2('stat-disponibles', s.totalDisponibles);
+    const c = parseInt(s.totalComentarios) || 0;
+    const r = parseInt(s.totalRespondidos) || 0;
+    const tasa = c > 0 ? Math.round(r / c * 100) : 0;
+    if(document.getElementById('fb-respondidos')) {
+      set2('fb-respondidos', r.toLocaleString('es-MX'));
+      set2('fb-comentarios', c.toLocaleString('es-MX'));
+      set2('fb-tasa', tasa + '%');
+      set2('fb-bloqueados', (parseInt(s.totalBloqueados)||0).toLocaleString('es-MX'));
+    }
+    if (s.gasto) {
+      gastoMeta = s.gasto;
+      periodo('semana', document.querySelector('.ptab.active') || document.querySelector('.ptab'));
+    }
     renderActividad(s.actividad);
     renderBloqueados(s.bloqueados);
   } catch(e){ console.error(e); }
 }
 
 function renderActividad(lista) {
-  const plats = ['v-overview','v-bot_fb'].map(id=>document.getElementById(id));
   const html = (lista||[]).map(a=>`
     <div class="act-row">
       <div class="act-av ${a.accion==='bloqueado'?'av-block':'av-reply'}">${a.accion==='bloqueado'?'🚫':'💬'}</div>
       <div>
-        <div class="act-user">@${a.usuario||'usuario'} <span class="act-time">· ${tiempoRelativo(a.created_at)}</span></div>
+        <div class="act-user">@${a.usuario||'usuario'} <span class="act-time" style="color:var(--muted);font-weight:400">· ${tiempoRelativo(a.created_at)}</span></div>
         <div class="act-text">${a.mensaje||''}</div>
       </div>
     </div>`).join('');
@@ -379,9 +714,11 @@ async function desbloquear(id){
 
 function tiempoRelativo(dt){
   const diff=Math.floor((Date.now()-new Date(dt).getTime())/1000);
-  if(diff<60) return diff+'s';
+  if(diff<60) return 'ahora';
   if(diff<3600) return Math.floor(diff/60)+'min';
-  return Math.floor(diff/3600)+'h';
+  if(diff<86400) return Math.floor(diff/3600)+'h';
+  if(diff<604800) return Math.floor(diff/86400)+'d';
+  return new Date(dt).toLocaleDateString('es-MX',{day:'numeric',month:'short'});
 }
 
 // ── TERRENOS ──────────────────────────────────────────────────────────────────
@@ -393,7 +730,7 @@ async function loadTerrenos(){
 function render() {
   const el = document.getElementById('terrenos-lista');
   if(!DB.length){
-    el.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted)"><div style="font-size:40px;margin-bottom:12px">🏞️</div><div style="font-size:14px">No hay terrenos. Agrega el primero.</div></div>';
+    el.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--muted)"><div style="font-size:40px;margin-bottom:14px">🏞️</div><div style="font-size:14px;font-weight:500">No hay terrenos. Agrega el primero.</div></div>';
     return;
   }
   el.innerHTML = DB.map(t=>`
@@ -409,9 +746,9 @@ function render() {
             <div class="info-txt">${t.info}</div>
           </div>
           <div class="adset-row">
-            <span style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.8px">Ad Set:</span>
+            <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600">Ad Set:</span>
             <span class="adset-val">"${t.adset}"</span>
-            <span style="font-size:10px;color:#ccc">← bot lo detecta automático</span>
+            <span style="font-size:10px;color:var(--muted)">← bot lo detecta automático</span>
           </div>
           <div class="tc-stats">
             <span class="tc-stat">💬 <strong>${t.comentarios||0}</strong> comentarios</span>
@@ -469,18 +806,428 @@ async function eliminar(id){
   toast('Eliminado',1); loadTerrenos();
 }
 
-// ── ADS (datos estáticos por ahora, se conecta a Meta Ads API en fase 2) ──────
-const ADS={hoy:{g:"$18.400",c:3,p:"$6.133",l:1},semana:{g:"$124.000",c:21,p:"$5.904",l:8},mes:{g:"$487.000",c:89,p:"$5.472",l:31},todo:{g:"$1.240.000",c:247,p:"$5.020",l:86}};
+// ── ADS ────────────────────────────────────────────────────────────────────────
+let gastoMeta = null;
 function periodo(k,btn){
   document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const d=ADS[k];
-  set2('a-gasto',d.g);set2('a-conv',d.c);set2('a-cpc',d.p);set2('a-leads',d.l);
+  if (!gastoMeta) { set2('a-gasto','Cargando...'); return; }
+  const mapa = {hoy:'hoy', semana:'semana', mes:'mes', todo:'mes'};
+  const d = gastoMeta[mapa[k]] || gastoMeta.semana;
+  const fmt = n => '$' + parseFloat(n||0).toLocaleString('es-MX', {maximumFractionDigits:0});
+  const fmtNum = n => parseInt(n||0).toLocaleString('es-MX');
+  set2('a-gasto', fmt(d.spend));
+  set2('a-conv', fmtNum(d.clicks));
+  set2('a-cpc', fmtNum(d.impressions));
+  const cpc = parseInt(d.clicks||0) > 0 ? parseFloat(d.spend)/parseInt(d.clicks) : 0;
+  set2('a-leads', fmt(cpc));
+}
+
+// ── WHATSAPP ──────────────────────────────────────────────────────────────────
+const WA_API = 'https://lively-trust-production-0a1e.up.railway.app';
+const estadoLabel = { nuevo:'Nuevo', interesado:'Interesado', presupuesto_ok:'Presupuesto OK', visita_pendiente:'Visita pendiente', visita_agendada:'Visita agendada' };
+const estadoBadge = e => `<span class="lead-badge badge-${e}">${estadoLabel[e]||e}</span>`;
+let waData = null;
+let waPeriodoActual = 'hoy';
+
+function waPeriodo(k, btn) {
+  document.querySelectorAll('#v-whatsapp .ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  waPeriodoActual = k;
+  if (waData) renderWaLeads(waData, k);
+}
+
+function filtrarPorPeriodo(leads, periodo) {
+  const ahora = Date.now();
+  const cortes = { hoy: 86400000, semana: 604800000, mes: 2592000000, todo: Infinity };
+  const corte = cortes[periodo] || Infinity;
+  return leads.filter(l => !l.timestamp || (ahora - l.timestamp) <= corte);
+}
+
+function renderWaLeads(d, periodo) {
+  const leads = filtrarPorPeriodo(d.leads, periodo);
+  set2('wa-leads', leads.length);
+  set2('wa-calientes', leads.filter(l=>l.score==='A'||l.score==='A+').length);
+  set2('wa-visitas', leads.filter(l=>l.estado==='visita_pendiente'||l.estado==='visita_agendada').length);
+  set2('wa-presupuestos', leads.filter(l=>l.estado==='presupuesto_ok').length);
+  const lista = document.getElementById('wa-leads-lista');
+  if (!leads.length) { lista.innerHTML = '<p style="color:var(--muted);font-size:13px">Sin leads en este período</p>'; return; }
+  lista.innerHTML = leads.map(l => {
+    const scoreColor = l.scoreColor || '#aaa';
+    const scoreBg = scoreColor === '#00b85a' ? '#f0fdf4' : scoreColor === '#c8a96e' ? '#fdf6eb' : scoreColor === '#7b9fff' ? '#f0f4ff' : '#f5f5f5';
+    return `
+    <div class="lead-row">
+      <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;background:${scoreBg};color:${scoreColor};border:2px solid ${scoreColor}" onclick="verHistorial('${l.clave}',${JSON.stringify(l.historial).replace(/'/g,"&#39;").replace(/"/g,'&quot;')})">${l.score||'D'}</div>
+      <div class="lead-info" onclick="verHistorial('${l.clave}',${JSON.stringify(l.historial).replace(/'/g,"&#39;").replace(/"/g,'&quot;')})">
+        <div class="lead-nombre">${l.congelado?'🔒 ':''}${l.nombre}</div>
+        <div class="lead-ultimo" style="display:flex;align-items:center;gap:5px">
+          <span style="font-size:10px;color:${scoreColor};font-weight:600">${l.scoreLabel||''}</span>
+          <span style="color:#ddd">·</span>
+          <span>${l.telefono ? '📞 '+l.telefono+' · ' : ''}${l.ultimoMensaje||'—'}</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+        <span style="font-size:10px;color:var(--muted)">${l.mensajes} msgs · ${tiempoRelativo(l.timestamp)}</span>
+        ${l.telefono ? `<a href="tel:${l.telefono}" style="background:#f0fdf4;color:#2d9e6b;border:1px solid #c3edd8;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;text-decoration:none">📞 Llamar</a>` : ''}
+      </div>
+    </div>`}).join('');
+}
+
+async function loadWhatsapp() {
+  try {
+    const d = await fetch(WA_API + '/dashboard?secret=daniel2024').then(r=>r.json());
+    if (d.error) { document.getElementById('wa-leads-lista').innerHTML = '<p style="color:var(--muted);font-size:13px">Sin datos aún</p>'; return; }
+    waData = d;
+    renderWaLeads(d, waPeriodoActual);
+  } catch(e) { console.error('WA error:', e); }
+}
+
+function verHistorial(clave, historial) {
+  document.getElementById('wa-historial-panel').style.display = 'block';
+  document.getElementById('wa-historial-titulo').textContent = 'Conversación · ' + clave;
+  const msgs = Array.isArray(historial) ? historial : JSON.parse(historial);
+  document.getElementById('wa-historial-mensajes').innerHTML = msgs.map(m => `
+    <div>
+      <div class="wa-msg-role">${m.role === 'user' ? '👤 Cliente' : '🤖 Daniel'}</div>
+      <div class="wa-msg ${m.role === 'user' ? 'wa-msg-user' : 'wa-msg-bot'}">${(m.content||'').slice(0,300)}</div>
+    </div>`).join('');
+  document.getElementById('wa-historial-mensajes').scrollTop = 99999;
+}
+
+function cerrarHistorial() {
+  document.getElementById('wa-historial-panel').style.display = 'none';
+}
+
+// ── SIDEBAR MOBILE ────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.toggle('open');
+  o.classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+// ── MODERACIÓN ────────────────────────────────────────────────────────────────
+function fbPostLink(post_id) {
+  if (!post_id) return '#';
+  const parts = post_id.split('_');
+  return parts.length >= 2
+    ? `https://www.facebook.com/${parts[0]}/posts/${parts[1]}`
+    : `https://www.facebook.com/${post_id}`;
+}
+
+async function loadMod() {
+  loadBlacklist();
+  loadComentarios();
+  try {
+    const terrenos = await api('/api/terrenos');
+    const sel = document.getElementById('bl-adset');
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— Todas las publicaciones —</option>';
+    terrenos.forEach(t => {
+      if (t.adset) sel.innerHTML += `<option value="${t.adset}"${t.adset===current?' selected':''}>${t.nombre}</option>`;
+    });
+  } catch(e) {}
+}
+
+async function loadBlacklist() {
+  try {
+    const lista = await api('/api/blacklist');
+    const el = document.getElementById('bl-lista');
+    if (!lista.length) { el.innerHTML = '<p style="color:var(--muted);font-size:13px">Sin palabras en la lista negra.</p>'; return; }
+    el.innerHTML = lista.map(p => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <span style="font-size:12px;font-weight:500;background:var(--faint);padding:3px 10px;border-radius:20px">${p.palabra}</span>
+          ${p.adset ? `<span style="font-size:10px;color:var(--gold);margin-left:8px;font-weight:600">📌 ${p.adset}</span>` : '<span style="font-size:10px;color:var(--muted);margin-left:8px">global</span>'}
+        </div>
+        <button class="btn btn-red btn-sm" onclick="eliminarPalabra(${p.id})">🗑</button>
+      </div>`).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function agregarPalabra() {
+  const palabra = document.getElementById('bl-input').value.trim();
+  const adset = document.getElementById('bl-adset').value || null;
+  if (!palabra) return;
+  try {
+    await api('/api/blacklist', { method:'POST', body: JSON.stringify({ palabra, adset }) });
+    document.getElementById('bl-input').value = '';
+    toast('✅ Palabra agregada' + (adset ? ' para ' + adset : ' (global)'));
+    loadBlacklist();
+  } catch(e) { toast('Error: '+e.message, 1); }
+}
+
+async function eliminarPalabra(id) {
+  await api('/api/blacklist/'+id, { method:'DELETE' });
+  toast('Eliminado');
+  loadBlacklist();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('bl-input')?.addEventListener('keydown', e => { if(e.key==='Enter') agregarPalabra(); });
+});
+
+let todosComments = [];
+let filtroPost = null;
+
+async function loadComentarios() {
+  const el = document.getElementById('comentarios-lista');
+  el.innerHTML = '<p style="color:var(--muted);font-size:13px">Cargando...</p>';
+  try {
+    todosComments = await api('/api/blacklist/comentarios?limit=30');
+    filtroPost = null;
+    renderFiltros();
+    renderComentarios();
+  } catch(e) { el.innerHTML = '<p style="color:var(--red);font-size:13px">Error: '+e.message+'</p>'; }
+}
+
+function renderFiltros() {
+  const el = document.getElementById('comments-filtros');
+  if (!el) return;
+  const posts = [];
+  const seen = new Set();
+  todosComments.forEach(c => {
+    if (!seen.has(c.post_id)) {
+      seen.add(c.post_id);
+      posts.push({ id: c.post_id, msg: c.post_msg || 'Publicación', pl: c.plataforma });
+    }
+  });
+  if (posts.length <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = [
+    `<button class="ptab${filtroPost===null?' active':''}" style="font-size:11px;padding:5px 13px" onclick="setFiltroPost(null)">Todas (${todosComments.length})</button>`,
+    ...posts.map(p => {
+      const n = todosComments.filter(c=>c.post_id===p.id).length;
+      const badge = p.pl==='instagram'?'<span class="pl-ig" style="margin-left:4px">IG</span>':'<span class="pl-fb" style="margin-left:4px">FB</span>';
+      return `<button class="ptab${filtroPost===p.id?' active':''}" style="font-size:11px;padding:5px 13px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" onclick="setFiltroPost('${p.id}')">${p.msg.slice(0,25)||'Post'} (${n})${badge}</button>`;
+    })
+  ].join('');
+}
+
+function setFiltroPost(postId) {
+  filtroPost = postId;
+  renderFiltros();
+  renderComentarios();
+}
+
+const KEYWORDS_CALIENTE = ['precio','cuánto','cuanto','comprar','compro','disponible','cuándo','cuando','visita','apartarlo','apartar','enganche','interesa','info','informes','informacion','información','pagar','costo','vale','valen'];
+const KEYWORDS_TIBIO = ['hola','buenas','buenos','gracias','ok','bien','bonito','lindo','hermoso','me gusta','me interesa'];
+
+function scoreComentario(mensaje) {
+  const m = (mensaje||'').toLowerCase();
+  if (KEYWORDS_CALIENTE.some(k => m.includes(k))) return { label:'🔥 Interesado', color:'#ff3b30', bg:'#fff1f0' };
+  if (KEYWORDS_TIBIO.some(k => m.includes(k))) return { label:'👀 Atención', color:'#ff9500', bg:'#fff8f0' };
+  return null;
+}
+
+function renderComentarios() {
+  const el = document.getElementById('comentarios-lista');
+  const lista = filtroPost ? todosComments.filter(c=>c.post_id===filtroPost) : todosComments.slice(0,10);
+  if (!lista.length) { el.innerHTML = '<p style="color:var(--muted);font-size:13px">Sin comentarios en esta publicación.</p>'; return; }
+  el.innerHTML = lista.map(c => {
+    const postUrl = c.post_url || fbPostLink(c.post_id);
+    const plBadge = c.plataforma==='instagram' ? '<span class="pl-ig">IG</span>' : '<span class="pl-fb">FB</span>';
+    const sc = scoreComentario(c.mensaje);
+    return `
+    <div style="padding:12px 0;border-bottom:1px solid var(--border)${sc?';border-left:3px solid '+sc.color+';padding-left:12px':''}">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:600">${c.usuario}</span>
+        ${plBadge}
+        ${sc?`<span style="font-size:10px;font-weight:600;background:${sc.bg};color:${sc.color};padding:2px 8px;border-radius:20px">${sc.label}</span>`:''}
+        <span style="font-size:10px;color:var(--muted)">${tiempoRelativo(c.created_time)}</span>
+        ${c.oculto?'<span style="background:#fff1f0;color:var(--red);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">Oculto</span>':''}
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6;word-break:break-word;margin-bottom:6px">${c.mensaje||''}</div>
+      <a href="${postUrl}" target="_blank" style="font-size:10px;color:var(--blue);text-decoration:none;display:block;margin-bottom:8px;font-weight:500">🔗 ${(c.post_msg||'Ver publicación').slice(0,50)}</a>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        ${!c.oculto ? `<button class="btn btn-ghost btn-sm" onclick="ocultarComment('${c.id}',this)">👁 Ocultar</button>` : ''}
+        <button class="btn btn-red btn-sm" onclick="eliminarComment('${c.id}',this)">🗑 Eliminar</button>
+        ${c.plataforma==='facebook' ? `<button class="btn btn-sm" style="background:#fff1f0;color:var(--red);border:1px solid #ffd5d5" onclick="bloquearUsuario('${c.usuario_id||''}','${c.usuario}',this)">🚫 Bloquear</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function ocultarComment(id, btn) {
+  try {
+    await api('/api/blacklist/comentarios/'+id+'/ocultar', { method:'POST' });
+    toast('Comentario oculto');
+    btn.remove();
+    loadComentarios();
+  } catch(e) { toast('Error: '+e.message, 1); }
+}
+
+async function eliminarComment(id, btn) {
+  if (!confirm('¿Eliminar este comentario permanentemente?')) return;
+  try {
+    await api('/api/blacklist/comentarios/'+id, { method:'DELETE' });
+    toast('Comentario eliminado');
+    loadComentarios();
+  } catch(e) { toast('Error: '+e.message, 1); }
+}
+
+async function bloquearUsuario(userId, nombre, btn) {
+  if (!confirm(`¿Bloquear a ${nombre} en la página de Facebook?`)) return;
+  if (!userId) { toast('ID de usuario no disponible para este comentario', 1); return; }
+  try {
+    await api('/api/blacklist/usuarios/'+userId+'/bloquear', { method:'POST', body: JSON.stringify({ nombre, plataforma:'facebook' }) });
+    toast('🚫 '+nombre+' bloqueado');
+    btn.textContent = '✓ Bloqueado';
+    btn.disabled = true;
+    btn.style.opacity = '.5';
+  } catch(e) { toast('Error: '+e.message, 1); }
+}
+
+// ── BORRAR MI HISTORIAL ───────────────────────────────────────────────────────
+async function borrarMiHistorial() {
+  if (!confirm('¿Borrar tu historial de conversación con el bot?')) return;
+  try {
+    const claves = ['5218123793904'];
+    // Buscar también por subscriber_id si existe en los leads
+    if (waData && waData.leads) {
+      waData.leads.forEach(l => {
+        if (l.telefono === '5218123793904' || l.clave.includes('5218123793904')) {
+          if (!claves.includes(l.clave)) claves.push(l.clave);
+        }
+      });
+    }
+    for (const clave of claves) {
+      await fetch(WA_API + '/historial/' + encodeURIComponent(clave) + '?telefono=5218123793904', { method: 'DELETE' });
+    }
+    toast('✅ Tu historial fue borrado');
+    loadWhatsapp();
+  } catch(e) { toast('Error: ' + e.message, 1); }
+}
+
+// ── ANALIZAR ADS ─────────────────────────────────────────────────────────────
+function mdToHtml(md) {
+  return md
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[hul])(.+)$/gm, (m) => m.startsWith('<') ? m : '<p>' + m + '</p>')
+    .replace(/<p><\/p>/g, '');
+}
+
+async function analizarAds() {
+  const btn = document.getElementById('btn-analizar');
+  const panel = document.getElementById('analisis-panel');
+  const content = document.getElementById('analisis-content');
+  btn.textContent = '⏳ Analizando...';
+  btn.disabled = true;
+  panel.style.display = 'none';
+  try {
+    const d = await api('/api/analizar?secret=daniel2024');
+    document.getElementById('analisis-periodo').textContent = d.periodo || '';
+    content.innerHTML = mdToHtml(d.analisis);
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toast('✅ Análisis listo');
+  } catch(e) {
+    toast('Error al analizar: ' + e.message, 1);
+  } finally {
+    btn.textContent = '🤖 Analizar con IA';
+    btn.disabled = false;
+  }
+}
+
+// ── CALCULADORA ──────────────────────────────────────────────────────────────
+const calcLots = [
+  { name: 'Lote 1',        m2: '1,648', dims: '38 × 38 m', original: 2000000, actual: 1700000, ahorro: 300000, meses: 18, pagoFinal: true },
+  { name: 'Lote 3B',       m2: '1,700', dims: '43 × 39 m', original: 2100000, actual: 1785000, ahorro: 315000, meses: 18, pagoFinal: true },
+  { name: 'Lote 4 Premium',m2: '1,632', dims: '45 × 38 m', original: 2075000, actual: 1900000, ahorro: 175000, meses: 12, pagoFinal: true },
+];
+let calcCurrentLot = 0;
+
+function calcFmt(n) { return '$' + Math.round(n).toLocaleString('es-MX'); }
+
+function calcSelectLot(index) {
+  calcCurrentLot = index;
+  document.querySelectorAll('.c-lot-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
+  const lot = calcLots[index];
+  document.getElementById('c-precioOriginal').textContent = calcFmt(lot.original);
+  document.getElementById('c-precioActual').textContent = calcFmt(lot.actual);
+  document.getElementById('c-ahorro').textContent = 'Ahorras ' + calcFmt(lot.ahorro);
+  document.getElementById('c-lotInfo').textContent = lot.dims + ' · Últimos 3 lotes disponibles';
+  const pfSection = document.getElementById('c-pagoFinalSection');
+  const pfRow = document.getElementById('c-resPagoFinalRow');
+  pfSection.style.display = lot.pagoFinal ? 'block' : 'none';
+  pfRow.style.display = lot.pagoFinal ? 'flex' : 'none';
+  const engSlider = document.getElementById('c-engancheSlider');
+  const maxEng = Math.min(lot.actual - 100000, 1000000);
+  engSlider.max = maxEng;
+  if (parseInt(engSlider.value) > maxEng) engSlider.value = 400000;
+  calcUpdateCalc();
+}
+
+function calcUpdateCalc() {
+  const lot = calcLots[calcCurrentLot];
+  const enganche = parseInt(document.getElementById('c-engancheSlider').value);
+  let pagoFinal = 0;
+  if (lot.pagoFinal) {
+    pagoFinal = parseInt(document.getElementById('c-pagoFinalSlider').value);
+    if (enganche + pagoFinal >= lot.actual) {
+      pagoFinal = Math.max(0, lot.actual - enganche - 50000);
+      document.getElementById('c-pagoFinalSlider').value = pagoFinal;
+    }
+  }
+  const restante = lot.actual - enganche - pagoFinal;
+  const mensualidad = Math.max(0, Math.round(restante / lot.meses));
+  const engSlider = document.getElementById('c-engancheSlider');
+  const engPct = ((enganche - parseInt(engSlider.min)) / (parseInt(engSlider.max) - parseInt(engSlider.min))) * 100;
+  engSlider.style.setProperty('--progress', engPct + '%');
+  if (lot.pagoFinal) {
+    const pfSlider = document.getElementById('c-pagoFinalSlider');
+    const pfPct = ((pagoFinal - parseInt(pfSlider.min)) / (parseInt(pfSlider.max) - parseInt(pfSlider.min))) * 100;
+    pfSlider.style.setProperty('--progress', pfPct + '%');
+    document.getElementById('c-pagoFinalDisplay').textContent = calcFmt(pagoFinal);
+  }
+  document.getElementById('c-engancheDisplay').textContent = calcFmt(enganche);
+  document.getElementById('c-mensualidad').textContent = calcFmt(mensualidad);
+  document.getElementById('c-periodoText').textContent = 'durante ' + lot.meses + ' meses';
+  document.getElementById('c-resEnganche').textContent = calcFmt(enganche);
+  document.getElementById('c-resMensLabel').textContent = lot.meses + ' mensualidades de';
+  document.getElementById('c-resMens').textContent = calcFmt(mensualidad);
+  document.getElementById('c-resPagoFinal').textContent = calcFmt(pagoFinal);
+  document.getElementById('c-resTotal').textContent = calcFmt(lot.actual);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+async function checkEncinoStatus() {
+  try {
+    const d = await fetch(WA_API + '/health').then(r=>r.json());
+    const dot = document.getElementById('encino-dot');
+    const txt = document.getElementById('encino-status');
+    if (d.status === 'ok') {
+      dot.style.background = d.dentroHorario ? 'var(--green)' : 'var(--orange)';
+      dot.style.boxShadow = d.dentroHorario ? '0 0 8px var(--green)' : '0 0 8px var(--orange)';
+      txt.textContent = d.dentroHorario ? 'Bot Encino activo' : 'Bot Encino fuera horario';
+      txt.style.color = 'rgba(255,255,255,.45)';
+    } else {
+      dot.style.background = 'var(--red)'; dot.style.boxShadow = '0 0 8px var(--red)';
+      txt.textContent = 'Bot Encino sin conexión';
+    }
+  } catch(e) {
+    document.getElementById('encino-dot').style.background = 'var(--red)';
+    document.getElementById('encino-status').textContent = 'Sin conexión';
+  }
+}
+
 loadStats();
 setInterval(loadStats, 30000);
+checkEncinoStatus();
+setInterval(checkEncinoStatus, 60000);
+setInterval(() => {
+  if (document.getElementById('v-whatsapp').classList.contains('active')) loadWhatsapp();
+}, 30000);
 </script>
 </body>
 </html>
