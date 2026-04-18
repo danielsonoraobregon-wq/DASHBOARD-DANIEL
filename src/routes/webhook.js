@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { run, get } = require('../services/db');
+const { run, get, all } = require('../services/db');
 const { generarRespuesta } = require('../services/claude');
 const { responderComentario, bloquearUsuario, ocultarComentario, getAdSetDeComentario } = require('../services/meta');
 
@@ -40,10 +40,23 @@ async function procesarComentario(val) {
   if (bloqueado) return;
 
   const adsetName = await getAdSetDeComentario(postId);
+
+  // Verificar blacklist de palabras (global + por adset)
+  const blacklist = await all(
+    'SELECT palabra FROM blacklist WHERE adset IS NULL OR adset = ?',
+    [adsetName || '']
+  );
+  const textoLower = (texto || '').toLowerCase();
+  const enBlacklist = blacklist.some(b => textoLower.includes(b.palabra));
+  if (enBlacklist) {
+    await ocultarComentario(comentarioId);
+    console.log(`🚫 Comentario oculto por blacklist: ${texto}`);
+    return;
+  }
   let terreno = adsetName
-    ? await get('SELECT * FROM terrenos WHERE adset = ? AND estado != "Vendido"', [adsetName])
+    ? await get("SELECT * FROM terrenos WHERE adset = ? AND estado != 'Vendido'", [adsetName])
     : null;
-  if (!terreno) terreno = await get('SELECT * FROM terrenos WHERE estado = "Disponible" LIMIT 1');
+  if (!terreno) terreno = await get("SELECT * FROM terrenos WHERE estado = 'Disponible' LIMIT 1");
   if (!terreno) return;
 
   const respuesta = await generarRespuesta(texto, terreno, usuarioNombre);
@@ -51,7 +64,7 @@ async function procesarComentario(val) {
   if (respuesta.trim() === 'BLOQUEAR') {
     await bloquearUsuario(usuarioId);
     await ocultarComentario(comentarioId);
-    await run('INSERT OR IGNORE INTO bloqueados (usuario_id,usuario_nombre,plataforma,razon) VALUES (?,?,?,?)',
+    await run('INSERT INTO bloqueados (usuario_id,usuario_nombre,plataforma,razon) VALUES (?,?,?,?) ON CONFLICT (usuario_id) DO NOTHING',
       [usuarioId, usuarioNombre, plataforma, 'Comentario inapropiado detectado por bot']);
     await run('UPDATE terrenos SET bloqueados = bloqueados + 1 WHERE id = ?', [terreno.id]);
     await run('INSERT INTO actividad (usuario,plataforma,accion,mensaje,terreno_id) VALUES (?,?,?,?,?)',
