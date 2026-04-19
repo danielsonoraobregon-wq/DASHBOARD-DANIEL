@@ -140,10 +140,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
       <label>Nombre completo</label>
       <input class="fi" id="nombre" placeholder="Ej: Juan Carlos Martínez" oninput="preview()">
     </div>
-    <div class="fg">
-      <label>Fecha de cotización</label>
-      <input class="fi" type="date" id="fecha" oninput="preview()">
-    </div>
+    <input type="hidden" id="fecha">
     <div class="fg">
       <label>Fecha primer pago mensual</label>
       <input class="fi" type="date" id="fecha-pago" oninput="calcular()">
@@ -461,14 +458,8 @@ function tickReloj(){
   const s = String(ahora.getSeconds()).padStart(2,'0');
   document.getElementById('reloj-live').textContent =
     `${dias[ahora.getDay()]} ${ahora.getDate()} ${meses[ahora.getMonth()]} ${ahora.getFullYear()} ${h}:${m}:${s}`;
-  // También actualiza el campo fecha-cotización si está vacío o es el mismo día
-  const fechaInput = document.getElementById('fecha');
-  const hoy = ahora.toISOString().slice(0,10);
-  if(!fechaInput.dataset.manual) fechaInput.value = hoy;
+  document.getElementById('fecha').value = ahora.toISOString().slice(0,10);
 }
-document.getElementById('fecha').addEventListener('change', e => {
-  e.target.dataset.manual = '1';
-});
 setInterval(tickReloj, 1000);
 tickReloj();
 </script>
