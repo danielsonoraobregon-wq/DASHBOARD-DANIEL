@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Cotización · Privada Encino</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<style>
+/* ── PANTALLA (formulario) ──────────────────────────────────────────── */
+:root {
+  --verde:#2C4A3E; --verde2:#3D6B5A; --dorado:#C4975A; --crema:#FAF7F2;
+  --texto:#1A1A1A; --suave:#5A5A5A; --blanco:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f0f0f0;color:var(--texto)}
+
+#pantalla{max-width:560px;margin:0 auto;padding:24px 20px 60px}
+.s-header{background:var(--verde);border-radius:16px;padding:24px;margin-bottom:20px;color:#fff}
+.s-header h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:600}
+.s-header p{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+.s-card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.s-card h3{font-size:12px;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--suave);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:10px 13px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--texto);transition:border-color .15s;background:#fafafa}
+.fi:focus{outline:none;border-color:var(--dorado);background:#fff}
+select.fi{cursor:pointer}
+.preview-box{background:var(--crema);border-radius:10px;padding:14px;font-size:13px;color:var(--verde);font-weight:600;border:1.5px solid #e8e0d8;margin-top:8px}
+.btn-gen{display:block;width:100%;padding:15px;background:linear-gradient(135deg,var(--verde),var(--verde2));color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:-.2px;transition:all .2s}
+.btn-gen:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(44,74,62,.3)}
+.slider-val{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.slider-val span{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--verde)}
+input[type=range]{width:100%;height:6px;-webkit-appearance:none;border-radius:3px;background:linear-gradient(90deg,var(--verde) 0%,var(--verde) var(--p,30%),#e0d9cf var(--p,30%),#e0d9cf 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--verde);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+
+/* ── PDF (impresión) ───────────────────────────────────────────────── */
+#pdf{display:none}
+
+@media print {
+  #pantalla{display:none!important}
+  #pdf{display:block!important}
+  body{background:#fff;margin:0;padding:0}
+  @page{size:letter portrait;margin:0}
+}
+
+/* Páginas PDF */
+.pagina{
+  width:215.9mm;min-height:279.4mm;position:relative;
+  page-break-after:always;overflow:hidden;
+}
+.pagina:last-child{page-break-after:auto}
+
+/* Fondo textura crema */
+.pagina{background:#FAF7F2}
+.pagina::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.5;pointer-events:none;
+}
+
+/* ── PÁGINA 1 · Portada ── */
+.p1-barra{position:absolute;left:0;top:0;bottom:0;width:8px;background:linear-gradient(180deg,var(--verde),var(--verde2))}
+.p1-sidebar{position:absolute;right:0;top:0;bottom:0;width:62mm;border-left:1px solid #e0d9cf;padding:32mm 8mm 0 8mm}
+.p1-main{padding:16mm 74mm 16mm 20mm;min-height:279.4mm}
+.p1-logo-area{margin-bottom:18mm}
+.p1-nombre{font-family:'Dancing Script',cursive;font-size:42px;color:var(--verde);line-height:1.1;margin:12mm 0 8mm}
+.p1-titulo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--texto);line-height:1.2;margin-bottom:6mm}
+.p1-titulo strong{color:var(--verde)}
+.p1-desc{font-size:13px;color:var(--suave);line-height:1.8;margin-bottom:12mm}
+.p1-divider{height:2px;background:linear-gradient(90deg,var(--dorado),transparent);margin-bottom:12mm}
+.p1-footer{position:absolute;bottom:10mm;left:20mm;right:74mm;font-size:9px;color:#b0a090;text-align:center;border-top:1px solid #e0d9cf;padding-top:4mm}
+
+.sb-titulo{font-family:'Playfair Display',serif;font-size:11px;color:var(--verde);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8mm;padding-bottom:3mm;border-bottom:1px solid #e0d9cf}
+.sb-lbl{font-size:9px;color:#b0a090;text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:2mm;margin-top:6mm}
+.sb-val{font-size:12px;color:var(--texto);font-weight:500;line-height:1.5}
+.logo-text{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--verde);letter-spacing:2px}
+.logo-sub{font-size:8px;color:var(--dorado);letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-top:2px}
+
+/* ── PÁGINA 2 · Propuesta ── */
+.p2{padding:14mm 16mm}
+.p2-header{text-align:center;margin-bottom:10mm;border-bottom:1px solid #e0d9cf;padding-bottom:8mm}
+.p2-header h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--verde);margin-bottom:3mm}
+.p2-header p{font-size:12px;color:var(--suave)}
+.lote-box{background:#fff;border:1.5px solid #e0d9cf;border-radius:12px;padding:8mm;margin-bottom:8mm;position:relative}
+.lote-titulo{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--verde);margin-bottom:5mm}
+.precio-table{width:100%;border-collapse:collapse;margin-bottom:6mm}
+.precio-table td{padding:4mm 6mm;font-size:13px;border-bottom:1px solid #f0e8df}
+.precio-table td:last-child{text-align:right;font-weight:600}
+.precio-table .total td{background:var(--verde);color:#fff;font-size:15px;font-weight:700;border-radius:0 0 8px 8px}
+.ahorro-badge{display:inline-block;background:#f0fdf4;color:#2d9e6b;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #c3edd8;margin-left:8px}
+.plan-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-bottom:8mm}
+.plan-card{background:var(--crema);border:1px solid #e0d9cf;border-radius:10px;padding:5mm;text-align:center}
+.plan-card-lbl{font-size:9px;color:#b0a090;text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:2mm}
+.plan-card-val{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--verde)}
+.plan-card-sub{font-size:9px;color:var(--suave);margin-top:1mm}
+.benefits-row{display:flex;gap:5mm;margin-bottom:8mm}
+.ben{flex:1;background:#fff;border:1px solid #e0d9cf;border-radius:8px;padding:4mm;text-align:center}
+.ben-icon{font-size:18px;margin-bottom:2mm}
+.ben-txt{font-size:9px;color:var(--suave);line-height:1.4}
+.vigencia{text-align:center;font-size:10px;color:#b0a090;font-style:italic;border-top:1px solid #e0d9cf;padding-top:5mm}
+
+/* ── PÁGINA 3 · Tabla pagos ── */
+.p3{padding:14mm 16mm}
+.tabla-titulo{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--verde);margin-bottom:6mm;text-align:center}
+.tabla-pagos{width:100%;border-collapse:collapse;font-size:11px}
+.tabla-pagos thead td{background:var(--verde);color:#fff;font-weight:700;padding:4mm 5mm;text-align:center}
+.tabla-pagos tbody tr:nth-child(even){background:#f5f0eb}
+.tabla-pagos tbody td{padding:2.5mm 5mm;border-bottom:1px solid #ede8e0;color:var(--texto)}
+.tabla-pagos tbody td:last-child{text-align:right;font-weight:600;color:var(--verde)}
+.tabla-pagos .footer-row td{background:var(--dorado);color:#fff;font-weight:700;font-size:12px;padding:4mm 5mm}
+.tabla-pagos .footer-row td:last-child{text-align:right}
+.p3-nota{font-size:9px;color:#b0a090;text-align:center;margin-top:5mm;font-style:italic}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════
+     PANTALLA: FORMULARIO
+════════════════════════════════════════════════════ -->
+<div id="pantalla">
+  <div class="s-header">
+    <h1>🌿 Generador de Cotización</h1>
+    <p>Privada Encino · Montemorelos N.L.</p>
+  </div>
+
+  <div class="s-card">
+    <h3>Datos del cliente</h3>
+    <div class="fg">
+      <label>Nombre completo</label>
+      <input class="fi" id="nombre" placeholder="Ej: Juan Carlos Martínez" oninput="preview()">
+    </div>
+    <div class="fg">
+      <label>Fecha de cotización</label>
+      <input class="fi" type="date" id="fecha" oninput="preview()">
+    </div>
+    <div class="fg">
+      <label>Fecha primer pago mensual</label>
+      <input class="fi" type="date" id="fecha-pago" oninput="preview()">
+    </div>
+  </div>
+
+  <div class="s-card">
+    <h3>Lote</h3>
+    <div class="fg">
+      <label>Selecciona el lote</label>
+      <select class="fi" id="lote" onchange="cambiarLote()">
+        <option value="0">Lote 1 — $1,700,000 · 1,648 m² · 38×38 m</option>
+        <option value="1">Lote 3B — $1,785,000 · 1,700 m² · 43×39 m</option>
+        <option value="2">Lote 4 Premium — $1,900,000 · 1,632 m² · 45×38 m</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="s-card">
+    <h3>Plan de pagos</h3>
+    <div class="fg">
+      <div class="slider-val">
+        <label>Enganche</label>
+        <span id="eng-display">$400,000</span>
+      </div>
+      <input type="range" id="eng-slider" min="100000" max="900000" step="50000" value="400000" oninput="calcular()">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#b0a090;margin-top:4px"><span>$100,000</span><span>$900,000</span></div>
+    </div>
+    <div class="fg" id="pago-final-row">
+      <div class="slider-val">
+        <label>Pago final</label>
+        <span id="pf-display">$400,000</span>
+      </div>
+      <input type="range" id="pf-slider" min="0" max="800000" step="50000" value="400000" oninput="calcular()">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#b0a090;margin-top:4px"><span>$0</span><span>$800,000</span></div>
+    </div>
+    <div class="preview-box" id="preview-calc">
+      Mensualidad: — · — meses
+    </div>
+  </div>
+
+  <button class="btn-gen" onclick="generar()">📄 Generar Cotización → Imprimir / PDF</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     PDF: PÁGINAS IMPRIMIBLES
+════════════════════════════════════════════════════ -->
+<div id="pdf">
+
+  <!-- PÁGINA 1: PORTADA -->
+  <div class="pagina">
+    <div class="p1-barra"></div>
+    <div class="p1-main">
+      <div class="p1-logo-area">
+        <div class="logo-text">PRIVADA ENCINO</div>
+        <div class="logo-sub">Montemorelos · Nuevo León</div>
+      </div>
+      <div class="p1-nombre" id="pdf-nombre">Estimado Cliente</div>
+      <div class="p1-divider"></div>
+      <div class="p1-titulo">LA <strong>INVERSIÓN</strong> QUE<br>ESTABAS ESPERANDO,<br>ESTÁ AQUÍ.</div>
+      <div class="p1-desc">
+        Gracias por tu interés en formar parte de nuestra comunidad Privada Encino Campestre.<br><br>
+        Mi prioridad es invitarte a ser parte de un proyecto de primer nivel, ofreciéndote una oportunidad de inversión atractiva para ti y tu familia, con financiamiento directo, sin banco y sin intereses.
+      </div>
+    </div>
+    <div class="p1-sidebar">
+      <div class="sb-titulo">Privada Encino</div>
+      <div class="sb-lbl">Teléfono</div>
+      <div class="sb-val">(81) 2320 0696</div>
+      <div class="sb-lbl">Ubicación</div>
+      <div class="sb-val">La Morita, Montemorelos N.L.<br>45 min de Monterrey</div>
+      <div class="sb-lbl">Característica</div>
+      <div class="sb-val">Terrenos residenciales campestres · Propiedad privada · Sin banco</div>
+      <div class="sb-lbl">Financiamiento</div>
+      <div class="sb-val">Directo · 0% interés · Escritura ante notario al liquidar</div>
+    </div>
+    <div class="p1-footer">
+      PRIVADA ENCINO · La Morita, Montemorelos N.L. · (81) 2320 0696
+    </div>
+  </div>
+
+  <!-- PÁGINA 2: PROPUESTA -->
+  <div class="pagina">
+    <div class="p2">
+      <div class="p2-header">
+        <h2>UNA PROPUESTA PENSADA PARA TI</h2>
+        <p>Tu patrimonio de forma sencilla · Financiamiento directo sin banco · 0% intereses</p>
+      </div>
+
+      <div class="lote-box">
+        <div class="lote-titulo" id="pdf-lote-titulo">Lote 1 · 1,648 m²</div>
+        <table class="precio-table">
+          <tr><td>Precio de lista</td><td id="pdf-precio-lista">$2,000,000</td></tr>
+          <tr><td>Precio de lanzamiento <span class="ahorro-badge" id="pdf-ahorro-badge">Ahorras $300,000</span></td><td id="pdf-precio-actual" style="color:var(--verde);font-size:16px">$1,700,000</td></tr>
+          <tr class="total"><td>Precio con descuento</td><td id="pdf-precio-total">$1,700,000</td></tr>
+        </table>
+        <div style="font-size:11px;color:var(--suave);margin-top:2mm" id="pdf-dims">38 × 38 m · Últimos 3 lotes disponibles</div>
+      </div>
+
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-card-lbl">Enganche</div>
+          <div class="plan-card-val" id="pdf-eng">$400,000</div>
+          <div class="plan-card-sub">Al apartar</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-card-lbl">Mensualidad</div>
+          <div class="plan-card-val" id="pdf-mens">$72,222</div>
+          <div class="plan-card-sub" id="pdf-meses-label">18 meses</div>
+        </div>
+        <div class="plan-card" id="pdf-pf-card">
+          <div class="plan-card-lbl">Pago final</div>
+          <div class="plan-card-val" id="pdf-pf">$400,000</div>
+          <div class="plan-card-sub">Al liquidar</div>
+        </div>
+      </div>
+
+      <div class="benefits-row">
+        <div class="ben"><div class="ben-icon">🏦</div><div class="ben-txt">Sin banco<br>financiamiento directo</div></div>
+        <div class="ben"><div class="ben-icon">0%</div><div class="ben-txt">Cero intereses<br>mismo precio</div></div>
+        <div class="ben"><div class="ben-icon">📋</div><div class="ben-txt">Escritura ante notario<br>al liquidar</div></div>
+        <div class="ben"><div class="ben-icon">🌳</div><div class="ben-txt">Propiedad privada<br>no ejidal</div></div>
+      </div>
+
+      <div class="vigencia" id="pdf-vigencia">Cotización vigente al 18 de abril de 2026.</div>
+    </div>
+  </div>
+
+  <!-- PÁGINA 3: TABLA DE PAGOS -->
+  <div class="pagina">
+    <div class="p3">
+      <div class="tabla-titulo" id="pdf-tabla-titulo">Tabla de Pagos — Lote 1</div>
+      <table class="tabla-pagos">
+        <thead>
+          <tr>
+            <td style="width:15%">No.</td>
+            <td>Fecha</td>
+            <td style="text-align:right">Monto</td>
+          </tr>
+        </thead>
+        <tbody id="pdf-tabla-body"></tbody>
+        <tfoot>
+          <tr class="footer-row">
+            <td colspan="2">TOTAL</td>
+            <td id="pdf-tabla-total">$1,700,000</td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="p3-nota">Plan de pagos flexible y negociable · Precios sujetos a disponibilidad · Privada Encino — La Morita, Montemorelos NL</div>
+    </div>
+  </div>
+
+</div><!-- /pdf -->
+
+<script>
+const LOTES = [
+  { nombre:'Lote 1', m2:'1,648', dims:'38 × 38 m', precio:1700000, original:2000000, ahorro:300000, meses:18, pagoFinal:true },
+  { nombre:'Lote 3B', m2:'1,700', dims:'43 × 39 m', precio:1785000, original:2100000, ahorro:315000, meses:18, pagoFinal:true },
+  { nombre:'Lote 4 Premium', m2:'1,632', dims:'45 × 38 m', precio:1900000, original:2075000, ahorro:175000, meses:12, pagoFinal:true },
+];
+
+// Defaults
+document.getElementById('fecha').value = new Date().toISOString().slice(0,10);
+const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth()+1); nextMonth.setDate(15);
+document.getElementById('fecha-pago').value = nextMonth.toISOString().slice(0,10);
+
+function fmt(n){ return '$' + Math.round(n).toLocaleString('es-MX'); }
+function fmtFecha(d){
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${d.getDate()} de ${meses[d.getMonth()]} del ${d.getFullYear()}`;
+}
+function fmtFechaCorta(d){
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+function cambiarLote(){
+  const lot = LOTES[parseInt(document.getElementById('lote').value)];
+  const pfRow = document.getElementById('pago-final-row');
+  pfRow.style.display = lot.pagoFinal ? 'block' : 'none';
+  calcular();
+}
+
+function calcular(){
+  const lot = LOTES[parseInt(document.getElementById('lote').value)];
+  const eng = parseInt(document.getElementById('eng-slider').value);
+  let pf = 0;
+  if(lot.pagoFinal){
+    pf = parseInt(document.getElementById('pf-slider').value);
+    if(eng + pf >= lot.precio){ pf = Math.max(0, lot.precio - eng - 50000); document.getElementById('pf-slider').value = pf; }
+    document.getElementById('pf-display').textContent = fmt(pf);
+    const pfPct = ((pf)/(800000))*100;
+    document.getElementById('pf-slider').style.setProperty('--p', pfPct+'%');
+  }
+  const restante = lot.precio - eng - pf;
+  const mens = Math.max(0, Math.round(restante / lot.meses));
+  document.getElementById('eng-display').textContent = fmt(eng);
+  const engPct = ((eng-100000)/(900000-100000))*100;
+  document.getElementById('eng-slider').style.setProperty('--p', engPct+'%');
+  document.getElementById('preview-calc').textContent = `Mensualidad: ${fmt(mens)} × ${lot.meses} meses${lot.pagoFinal && pf>0 ? ' + pago final: '+fmt(pf) : ''}`;
+}
+
+function preview(){ calcular(); }
+
+function generar(){
+  const nombre = document.getElementById('nombre').value.trim() || 'Estimado Cliente';
+  const lot = LOTES[parseInt(document.getElementById('lote').value)];
+  const eng = parseInt(document.getElementById('eng-slider').value);
+  let pf = lot.pagoFinal ? parseInt(document.getElementById('pf-slider').value) : 0;
+  const restante = lot.precio - eng - pf;
+  const mens = Math.max(0, Math.round(restante / lot.meses));
+  const fechaStr = document.getElementById('fecha').value;
+  const fechaPago = document.getElementById('fecha-pago').value;
+
+  // Llenar PDF
+  document.getElementById('pdf-nombre').textContent = 'Estimado ' + nombre;
+  document.getElementById('pdf-lote-titulo').textContent = lot.nombre + ' · ' + lot.m2 + ' m²';
+  document.getElementById('pdf-precio-lista').textContent = fmt(lot.original);
+  document.getElementById('pdf-precio-actual').textContent = fmt(lot.precio);
+  document.getElementById('pdf-precio-total').textContent = fmt(lot.precio);
+  document.getElementById('pdf-ahorro-badge').textContent = 'Ahorras ' + fmt(lot.ahorro);
+  document.getElementById('pdf-dims').textContent = lot.dims + ' · Últimos 3 lotes disponibles';
+  document.getElementById('pdf-eng').textContent = fmt(eng);
+  document.getElementById('pdf-mens').textContent = fmt(mens);
+  document.getElementById('pdf-meses-label').textContent = lot.meses + ' meses';
+  document.getElementById('pdf-pf').textContent = fmt(pf);
+  document.getElementById('pdf-pf-card').style.display = lot.pagoFinal && pf > 0 ? 'block' : 'none';
+  document.getElementById('pdf-tabla-titulo').textContent = 'Tabla de Pagos — ' + lot.nombre;
+  document.getElementById('pdf-tabla-total').textContent = fmt(lot.precio);
+
+  // Vigencia
+  const fv = fechaStr ? new Date(fechaStr+'T12:00:00') : new Date();
+  const vigencia = new Date(fv); vigencia.setDate(vigencia.getDate()+30);
+  document.getElementById('pdf-vigencia').textContent = 'Cotización vigente al ' + fmtFecha(vigencia) + '.';
+
+  // Tabla de pagos
+  const tbody = document.getElementById('pdf-tabla-body');
+  tbody.innerHTML = '';
+  // Enganche
+  const fechaEnganche = fechaStr ? new Date(fechaStr+'T12:00:00') : new Date();
+  tbody.innerHTML += `<tr><td style="font-weight:700">Enganche</td><td>${fmtFechaCorta(fechaEnganche)}</td><td style="text-align:right;font-weight:700;color:var(--verde)">${fmt(eng)}</td></tr>`;
+
+  // Mensualidades
+  let fechaBase = fechaPago ? new Date(fechaPago+'T12:00:00') : new Date();
+  for(let i=1; i<=lot.meses; i++){
+    const d = new Date(fechaBase);
+    d.setMonth(fechaBase.getMonth() + (i-1));
+    tbody.innerHTML += `<tr><td>${i}</td><td>${fmtFechaCorta(d)}</td><td style="text-align:right">${fmt(mens)}</td></tr>`;
+  }
+
+  // Pago final
+  if(lot.pagoFinal && pf > 0){
+    const dPf = new Date(fechaBase);
+    dPf.setMonth(fechaBase.getMonth() + lot.meses);
+    tbody.innerHTML += `<tr style="background:#fdf6eb"><td style="font-weight:700;color:var(--dorado)">Pago final</td><td style="color:var(--dorado)">${fmtFechaCorta(dPf)}</td><td style="text-align:right;font-weight:700;color:var(--dorado)">${fmt(pf)}</td></tr>`;
+  }
+
+  // Imprimir
+  window.print();
+}
+
+cambiarLote();
+</script>
+</body>
+</html>
