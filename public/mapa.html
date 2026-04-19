@@ -92,6 +92,22 @@ body { font-family:'Inter',sans-serif; background:#0a0a0a; }
 .cap-btn.active { background:rgba(200,151,58,.2); color:#c8973a; }
 .cap-btn:not(.active) { background:rgba(255,255,255,.05); color:rgba(255,255,255,.4); }
 
+/* Ajustador */
+#ajustador {
+  position:fixed; bottom:20px; right:16px; z-index:1000;
+  background:rgba(15,15,15,.92); backdrop-filter:blur(12px);
+  border-radius:14px; padding:12px 14px; border:1px solid rgba(255,255,255,.1);
+  display:none;
+}
+#ajustador.visible { display:block; }
+#ajustador h4 { font-size:10px; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:600; }
+.adj-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; width:110px; }
+.adj-btn { background:rgba(255,255,255,.1); border:none; color:#fff; border-radius:7px; padding:8px; font-size:14px; cursor:pointer; transition:background .15s; }
+.adj-btn:hover { background:rgba(255,255,255,.2); }
+.adj-center { grid-column:2; grid-row:2; font-size:10px; color:rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; }
+#adj-offset { font-size:10px; color:rgba(255,255,255,.3); text-align:center; margin-top:6px; }
+#adj-toggle { position:fixed; bottom:20px; right:16px; z-index:1000; }
+
 /* Leaflet overrides */
 .leaflet-popup-content-wrapper { background:rgba(10,10,10,.9); color:#fff; border-radius:12px; border:1px solid rgba(255,255,255,.1); }
 .leaflet-popup-tip { background:rgba(10,10,10,.9); }
@@ -146,6 +162,27 @@ body { font-family:'Inter',sans-serif; background:#0a0a0a; }
   <div class="ley-row"><div class="ley-dot" style="background:#34c759"></div><span class="ley-txt">Disponible</span></div>
   <div class="ley-row"><div class="ley-dot" style="background:#ff9500"></div><span class="ley-txt">Reservado</span></div>
   <div class="ley-row"><div class="ley-dot" style="background:#ff3b30"></div><span class="ley-txt">Vendido</span></div>
+</div>
+
+<!-- Ajustador de polígonos -->
+<div id="adj-toggle">
+  <button class="tb-btn tb-btn-ghost" style="font-size:11px" onclick="toggleAjustador()">⚙️ Ajustar lotes</button>
+</div>
+<div id="ajustador">
+  <h4>Mover todos los lotes</h4>
+  <div class="adj-grid">
+    <div></div>
+    <button class="adj-btn" onclick="mover(0,1)">↑</button>
+    <div></div>
+    <button class="adj-btn" onclick="mover(-1,0)">←</button>
+    <div class="adj-center">·</div>
+    <button class="adj-btn" onclick="mover(1,0)">→</button>
+    <div></div>
+    <button class="adj-btn" onclick="mover(0,-1)">↓</button>
+    <div></div>
+  </div>
+  <div id="adj-offset">offset: 0, 0</div>
+  <button onclick="toggleAjustador()" style="width:100%;margin-top:8px;background:rgba(200,151,58,.2);color:#c8973a;border:none;border-radius:7px;padding:6px;font-size:11px;font-weight:600;cursor:pointer">✓ Listo</button>
 </div>
 
 <div id="map"></div>
@@ -293,7 +330,9 @@ LOTES.forEach(lote => {
     className: '',
     iconAnchor: [30, 10],
   });
-  L.marker(center, { icon: label }).addTo(map);
+  const labelMarker = L.marker(center, { icon: label }).addTo(map);
+  lote._baseCoords = [...lote.coords];
+  lote._label = labelMarker;
 
   poly.on('click', () => abrirPanel(lote, poly));
   poly.on('mouseover', () => {
@@ -366,6 +405,31 @@ function setCapa(capa) {
 
 // Click en mapa cierra panel
 map.on('click', e => { if (!e.originalEvent._panel) cerrarPanel(); });
+
+// ── AJUSTADOR DE POLÍGONOS ────────────────────────────────────────────────────
+const PASO = 0.000050; // ~5 metros por click
+let offsetLat = 0, offsetLng = 0;
+let adjVisible = false;
+
+function toggleAjustador() {
+  adjVisible = !adjVisible;
+  document.getElementById('ajustador').classList.toggle('visible', adjVisible);
+  document.getElementById('adj-toggle').style.display = adjVisible ? 'none' : 'block';
+}
+
+function mover(dLng, dLat) {
+  offsetLat += dLat * PASO;
+  offsetLng += dLng * PASO;
+  document.getElementById('adj-offset').textContent =
+    `lat: ${offsetLat.toFixed(6)}  lng: ${offsetLng.toFixed(6)}`;
+  LOTES.forEach(lote => {
+    const nuevas = lote._baseCoords.map(([lat, lng]) => [lat + offsetLat, lng + offsetLng]);
+    lote._poly.setLatLngs(nuevas);
+    // Mover label
+    const center = lote._poly.getBounds().getCenter();
+    lote._label.setLatLng(center);
+  });
+}
 </script>
 </body>
 </html>
