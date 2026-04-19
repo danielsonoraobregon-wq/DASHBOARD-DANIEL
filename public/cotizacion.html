@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Generador de Cotización · Privada Encino</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* ── PANTALLA (formulario) ──────────────────────────────────────────── */
 :root {
@@ -189,7 +191,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
     </div>
   </div>
 
-  <button class="btn-gen" onclick="generar()">📄 Generar Cotización → Imprimir / PDF</button>
+  <button class="btn-gen" id="btn-gen" onclick="generar()">📄 Generar PDF</button>
 </div>
 
 <!-- ════════════════════════════════════════════════════
@@ -351,7 +353,8 @@ function calcular(){
 
 function preview(){ calcular(); }
 
-function generar(){
+async function generar(){
+  const btn = document.getElementById('btn-gen');
   const nombre = document.getElementById('nombre').value.trim() || 'Estimado Cliente';
   const lot = LOTES[parseInt(document.getElementById('lote').value)];
   const eng = parseInt(document.getElementById('eng-slider').value);
@@ -385,27 +388,53 @@ function generar(){
   // Tabla de pagos
   const tbody = document.getElementById('pdf-tabla-body');
   tbody.innerHTML = '';
-  // Enganche
   const fechaEnganche = fechaStr ? new Date(fechaStr+'T12:00:00') : new Date();
   tbody.innerHTML += `<tr><td style="font-weight:700">Enganche</td><td>${fmtFechaCorta(fechaEnganche)}</td><td style="text-align:right;font-weight:700;color:var(--verde)">${fmt(eng)}</td></tr>`;
-
-  // Mensualidades
   let fechaBase = fechaPago ? new Date(fechaPago+'T12:00:00') : new Date();
   for(let i=1; i<=lot.meses; i++){
     const d = new Date(fechaBase);
     d.setMonth(fechaBase.getMonth() + (i-1));
     tbody.innerHTML += `<tr><td>${i}</td><td>${fmtFechaCorta(d)}</td><td style="text-align:right">${fmt(mens)}</td></tr>`;
   }
-
-  // Pago final
   if(lot.pagoFinal && pf > 0){
     const dPf = new Date(fechaBase);
     dPf.setMonth(fechaBase.getMonth() + lot.meses);
     tbody.innerHTML += `<tr style="background:#fdf6eb"><td style="font-weight:700;color:var(--dorado)">Pago final</td><td style="color:var(--dorado)">${fmtFechaCorta(dPf)}</td><td style="text-align:right;font-weight:700;color:var(--dorado)">${fmt(pf)}</td></tr>`;
   }
 
-  // Imprimir
-  window.print();
+  // Generar PDF
+  btn.disabled = true;
+  btn.textContent = '⏳ Generando PDF...';
+
+  const pdfDiv = document.getElementById('pdf');
+  pdfDiv.style.cssText = 'display:block;position:fixed;left:-9999px;top:0;z-index:-1;';
+  await new Promise(r => setTimeout(r, 400));
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'letter', orientation: 'portrait' });
+    const pages = pdfDiv.querySelectorAll('.pagina');
+
+    for (let i = 0; i < pages.length; i++) {
+      if (i > 0) doc.addPage();
+      const canvas = await html2canvas(pages[i], {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#FAF7F2',
+        width: pages[i].offsetWidth,
+        height: pages[i].offsetHeight,
+      });
+      doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 215.9, 279.4);
+    }
+
+    const nombreArchivo = nombre.replace(/\s+/g,'-').replace(/[^a-zA-Z0-9\-áéíóúÁÉÍÓÚñÑ]/g,'');
+    doc.save(`Cotizacion-${nombreArchivo}-${lot.nombre.replace(/\s+/g,'-')}.pdf`);
+  } finally {
+    pdfDiv.style.cssText = 'display:none;';
+    btn.disabled = false;
+    btn.textContent = '📄 Generar PDF';
+  }
 }
 
 cambiarLote();
