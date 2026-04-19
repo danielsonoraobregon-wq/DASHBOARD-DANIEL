@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Naranjo Primera Etapa · Pagos Pendientes</title>
+<style>
+:root{
+  --bg1:#ffffff;--bg2:#f5f5f7;--bg3:#e8e8ed;--bgw:#fef9ec;
+  --t1:#1d1d1f;--t2:#6e6e73;--tw:#854F0B;
+  --bd:#d2d2d7;--bdw:#f0c842;--r1:12px;--r2:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg1:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;--bgw:#2d2000;
+    --t1:#f5f5f7;--t2:#98989d;--tw:#FAC775;--bd:#3a3a3c;--bdw:#7a5c00;}
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg2);color:var(--t1);padding:16px;padding-bottom:40px;-webkit-font-smoothing:antialiased}
+.label{font-size:11px;color:var(--t2);letter-spacing:.05em;text-transform:uppercase}
+.card{background:var(--bg1);border:.5px solid var(--bd);border-radius:var(--r1);padding:1rem 1.1rem}
+.stat{background:var(--bg2);border-radius:var(--r2);padding:.875rem 1rem}
+.track{background:var(--bg3);border-radius:99px;height:8px;width:100%}
+.bwarn{background:#FAEEDA;color:#854F0B;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+.bdanger{background:#FCEBEB;color:#A32D2D;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+.bok{background:#EAF3DE;color:#3B6D11;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+.binfo{background:#E3EEFE;color:#1A4B9A;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+@media(prefers-color-scheme:dark){
+  .bwarn{background:#412402;color:#FAC775}
+  .bdanger{background:#501313;color:#F09595}
+  .bok{background:#173404;color:#C0DD97}
+  .binfo{background:#0D2845;color:#7AB3F5}
+}
+details>summary{list-style:none;cursor:pointer;user-select:none}
+details>summary::-webkit-details-marker{display:none}
+@media(max-width:430px){
+  body{padding:12px;padding-bottom:40px}
+  #gstats{grid-template-columns:1fr 1fr!important}
+  #lotes{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+<div style="max-width:1100px;margin:0 auto">
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px">
+    <div>
+      <h1 style="font-size:22px;font-weight:600">El Naranjo Primera Etapa</h1>
+      <p style="font-size:13px;color:var(--t2);margin-top:4px">Pagos pendientes · <span id="reloj"></span></p>
+    </div>
+    <a href="/pagos.html" style="font-size:12px;color:var(--t2);text-decoration:none;padding-top:6px">← Solagarada Sector</a>
+  </div>
+
+  <div id="gstats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem"></div>
+  <div id="alert" style="margin-bottom:1.25rem"></div>
+  <div id="lotes" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px"></div>
+
+</div>
+<script>
+(function(){
+const MNS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+// ── DATOS ────────────────────────────────────────────────────
+// inicio: fecha primer mensualidad, n: total mensualidades, mensual: monto fijo
+// extras: pagos únicos (anualidades) pendientes
+const LOTES = [
+  // Terminan 2026
+  {id:16,   inicio:'2023-09-05', n:36, mensual:13130,  extras:[]},
+  {id:17,   inicio:'2023-06-30', n:36, mensual:14583,  extras:[]},
+  {id:18,   inicio:'2023-07-05', n:36, mensual:15972,  extras:[]},
+  {id:21,   inicio:'2023-09-30', n:36, mensual:20398,  extras:[]},
+  {id:22,   inicio:'2024-01-05', n:36, mensual:16527,  extras:[]},
+  {id:24,   inicio:'2024-01-05', n:36, mensual:17777,  extras:[]},
+  {id:25,   inicio:'2024-01-05', n:36, mensual:16611,  extras:[]},
+  {id:26,   inicio:'2023-07-19', n:36, mensual:30125,  extras:[]},
+];
+
+// ── HELPERS ──────────────────────────────────────────────────
+function addMon(dateStr, n){
+  const d = new Date(dateStr+'T12:00:00');
+  const day = d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + n);
+  const max = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  d.setDate(Math.min(day, max));
+  return d;
+}
+function today0(){ const d = new Date(); d.setHours(0,0,0,0); return d; }
+function fmt(d){ return d.getDate()+' '+MNS[d.getMonth()]+' '+d.getFullYear(); }
+function pesos(n){ return '$'+Math.round(n).toLocaleString('es-MX'); }
+function dias(d){ return Math.round((d - today0())/(864e5)); }
+function badge(d){
+  const n = dias(d);
+  if(n < 0)  return '<span class="bdanger">Vencido</span>';
+  if(n === 0)return '<span class="bdanger">Hoy</span>';
+  if(n <= 7) return '<span class="bdanger">'+n+'d</span>';
+  if(n <= 30)return '<span class="bwarn">'+n+'d</span>';
+  return '<span class="binfo">'+n+'d</span>';
+}
+
+// ── SCHEDULE ─────────────────────────────────────────────────
+function sched(lote){
+  const hoy = today0();
+  const all = [];
+  for(let i=0;i<lote.n;i++){
+    all.push({fecha:addMon(lote.inicio,i), monto:lote.mensual, tipo:'mensualidad', num:i+1});
+  }
+  for(const e of lote.extras){
+    all.push({fecha:new Date(e.fecha+'T12:00:00'), monto:e.monto, tipo:'extra', label:e.label});
+  }
+  all.sort((a,b)=>a.fecha-b.fecha);
+  return {
+    all,
+    done:    all.filter(p=>p.fecha < hoy),
+    pending: all.filter(p=>p.fecha >= hoy)
+  };
+}
+
+// ── RENDER ───────────────────────────────────────────────────
+function render(){
+  const hoy = today0();
+  const mesIni = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  const mesFin = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0);
+
+  let totalPend=0, estesMes=0, prox30=0, activos=0;
+
+  const data = LOTES.map(l=>{
+    const s = sched(l);
+    const pend = s.pending.reduce((a,p)=>a+p.monto, 0);
+    const mes  = s.pending.filter(p=>p.fecha>=mesIni&&p.fecha<=mesFin).reduce((a,p)=>a+p.monto, 0);
+    const p30  = s.pending.filter(p=>dias(p.fecha)>=0&&dias(p.fecha)<=30).reduce((a,p)=>a+p.monto, 0);
+    totalPend += pend; estesMes += mes; prox30 += p30;
+    if(s.pending.length) activos++;
+    return {l, s, pend, mes};
+  });
+
+  // Stats
+  document.getElementById('gstats').innerHTML = [
+    {lb:'Cartera pendiente', v:pesos(totalPend), c:'var(--t1)'},
+    {lb:'Este mes',          v:pesos(estesMes),  c:'#1A4B9A'},
+    {lb:'Próximos 30 días',  v:pesos(prox30),    c:'#854F0B'},
+    {lb:'Lotes activos',     v:activos,           c:'var(--t1)'},
+  ].map(s=>`<div class="stat">
+    <div class="label">${s.lb}</div>
+    <div style="font-size:20px;font-weight:600;color:${s.c};margin-top:4px">${s.v}</div>
+  </div>`).join('');
+
+  // Alert
+  const alertLotes = data.filter(d=>d.s.pending.some(p=>dias(p.fecha)>=0&&dias(p.fecha)<=30));
+  document.getElementById('alert').innerHTML = alertLotes.length
+    ? `<div class="card" style="background:var(--bgw);border-color:var(--bdw)">
+        <div class="label" style="color:var(--tw)">⚠ Vencen en los próximos 30 días</div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px">
+          ${alertLotes.map(d=>{
+            const p = d.s.pending.filter(x=>dias(x.fecha)>=0&&dias(x.fecha)<=30)[0];
+            return `<span style="font-size:13px"><b>Lote ${d.l.id}</b> <span style="color:var(--tw)">${fmt(p.fecha)} · ${pesos(p.monto)}</span></span>`;
+          }).join('<span style="color:var(--t2)"> · </span>')}
+        </div>
+      </div>`
+    : '';
+
+  // Sort por próximo pago
+  data.sort((a,b)=>{
+    const pa=a.s.pending[0], pb=b.s.pending[0];
+    if(!pa) return 1; if(!pb) return -1;
+    return pa.fecha - pb.fecha;
+  });
+
+  // Cards
+  document.getElementById('lotes').innerHTML = data
+    .filter(d=>d.s.pending.length>0)
+    .map(d=>{
+      const {l, s} = d;
+      const pct = Math.round(s.done.length / s.all.length * 100);
+      const next = s.pending[0];
+      const nM = s.pending.filter(p=>p.tipo==='mensualidad').length;
+      const nE = s.pending.filter(p=>p.tipo==='extra').length;
+
+      const rows = s.pending.map(p=>`<tr>
+        <td style="padding:5px 0 5px 0;font-size:12px;color:var(--t2);white-space:nowrap">${p.tipo==='mensualidad'?'Mens. #'+p.num:p.label}</td>
+        <td style="padding:5px 8px;font-size:12px;text-align:center;white-space:nowrap">${fmt(p.fecha)}</td>
+        <td style="padding:5px 0 5px 8px;font-size:12px;font-weight:500;text-align:right;white-space:nowrap">${pesos(p.monto)}</td>
+        <td style="padding:5px 0;text-align:right">${badge(p.fecha)}</td>
+      </tr>`).join('');
+
+      return `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+          <div>
+            <div style="font-size:18px;font-weight:600">Lote ${l.id}</div>
+            <div style="font-size:12px;color:var(--t2);margin-top:2px">${pesos(l.mensual)}/mes &nbsp;·&nbsp; ${s.pending.length} pago${s.pending.length!==1?'s':''} restante${s.pending.length!==1?'s':''}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:16px;font-weight:600;color:#A32D2D">${pesos(d.pend)}</div>
+            <div style="font-size:11px;color:var(--t2);margin-top:1px">total pendiente</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:.75rem">
+          <div class="track"><div style="height:8px;border-radius:99px;background:#3B6D11;width:${pct}%"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px">
+            <span style="font-size:10px;color:var(--t2)">${s.done.length} pagados</span>
+            <span style="font-size:10px;color:var(--t2)">${pct}%</span>
+            <span style="font-size:10px;color:var(--t2)">${s.all.length} total</span>
+          </div>
+        </div>
+
+        <div style="background:var(--bg2);border-radius:var(--r2);padding:.6rem .75rem;margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <div>
+            <div class="label">Próximo pago</div>
+            <div style="font-size:14px;font-weight:500;margin-top:3px">${fmt(next.fecha)} &nbsp;·&nbsp; ${pesos(next.monto)}</div>
+          </div>
+          ${badge(next.fecha)}
+        </div>
+
+        ${nE>0?`<div style="font-size:11px;color:var(--t2);margin-bottom:.5rem">+ ${nE} pago${nE!==1?'s':''} adicional${nE!==1?'es':''} (anualidad${nE!==1?'es':''})</div>`:''}
+
+        <details>
+          <summary style="font-size:12px;color:var(--t2);padding-top:4px">Ver todos los pagos pendientes ▾</summary>
+          <div style="margin-top:.75rem;overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse">
+              <thead><tr>
+                <th style="font-size:10px;color:var(--t2);text-align:left;padding-bottom:6px;font-weight:500">Concepto</th>
+                <th style="font-size:10px;color:var(--t2);text-align:center;padding-bottom:6px;font-weight:500">Fecha</th>
+                <th style="font-size:10px;color:var(--t2);text-align:right;padding:0 0 6px 8px;font-weight:500">Monto</th>
+                <th style="font-size:10px;color:var(--t2);text-align:right;padding-bottom:6px;font-weight:500">Días</th>
+              </tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </details>
+      </div>`;
+    }).join('');
+}
+
+// Reloj
+(function tick(){
+  const n = new Date();
+  document.getElementById('reloj').textContent =
+    n.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  setTimeout(tick, 60000);
+})();
+
+render();
+})();
+</script>
+</body>
+</html>
