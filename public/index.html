@@ -1227,6 +1227,7 @@ checkEncinoStatus();
 setInterval(checkEncinoStatus, 60000);
 setInterval(() => {
   if (document.getElementById('v-whatsapp').classList.contains('active')) loadWhatsapp();
+  if (document.getElementById('v-bot_fb').classList.contains('active')) loadComentarios();
 }, 30000);
 </script>
 </body>
