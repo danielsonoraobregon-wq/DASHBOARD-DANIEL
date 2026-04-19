@@ -76,24 +76,29 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:10px">Gastos fijos mensuales</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
       <div class="card" style="border-left:3px solid #A32D2D">
-        <div class="label">Gasto 1</div>
-        <div style="font-size:20px;font-weight:500;color:#A32D2D;margin-top:5px">-$18,600</div>
+        <div class="label">Sienna</div>
+        <div style="font-size:20px;font-weight:500;color:#A32D2D;margin-top:5px">-$26,500</div>
         <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Mensual · Sin fecha fin</div>
       </div>
       <div class="card" style="border-left:3px solid #A32D2D">
-        <div class="label">Gasto 2</div>
+        <div class="label">Tiburón</div>
+        <div style="font-size:20px;font-weight:500;color:#A32D2D;margin-top:5px">-$18,500</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Mensual · Sin fecha fin</div>
+      </div>
+      <div class="card" style="border-left:3px solid #A32D2D">
+        <div class="label">CF Moto</div>
         <div style="font-size:20px;font-weight:500;color:#A32D2D;margin-top:5px">-$16,500</div>
-        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Mensual · Sin fecha fin</div>
-      </div>
-      <div class="card" style="border-left:3px solid #A32D2D">
-        <div class="label">Gasto 3</div>
-        <div style="font-size:20px;font-weight:500;color:#A32D2D;margin-top:5px">-$26,000</div>
         <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Mensual · Sin fecha fin</div>
       </div>
       <div class="card" style="border-left:3px solid #6e6e73">
         <div class="label">Total gastos / mes</div>
-        <div style="font-size:20px;font-weight:500;color:#A32D2D;margin-top:5px">-$61,100</div>
+        <div style="font-size:20px;font-weight:500;color:#A32D2D;margin-top:5px">-$61,500</div>
         <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Recurrente indefinido</div>
+      </div>
+      <div class="card" style="border-left:3px solid #3B6D11" id="dinero-libre">
+        <div class="label">Dinero libre este mes</div>
+        <div style="font-size:20px;font-weight:500;color:#3B6D11;margin-top:5px" id="dinero-libre-val">Calculando...</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">Cobros del mes − $61,500 gastos</div>
       </div>
     </div>
   </div>
@@ -335,6 +340,21 @@ function render(){
 
 window.tog = id => { sel=(sel===id)?null:id; render(); };
 render();
+
+// Dinero libre = cobros que caen este mes - gastos fijos
+const inicioMes = new Date(today.getFullYear(), today.getMonth(), 1);
+const finMes = new Date(today.getFullYear(), today.getMonth()+1, 0);
+const cobrosEsteMes = buyers.reduce((s,b)=>{
+  return s + b.all.filter(p=>p.fecha>=inicioMes && p.fecha<=finMes).reduce((ss,p)=>ss+p.monto,0);
+},0);
+const gastosFijos = 61500;
+const libre = cobrosEsteMes - gastosFijos;
+const libreEl = document.getElementById('dinero-libre-val');
+const libreCard = document.getElementById('dinero-libre');
+libreEl.textContent = (libre>=0?'':'-')+'$'+Math.abs(Math.round(libre)).toLocaleString('es-MX');
+libreEl.style.color = libre>=0?'#3B6D11':'#A32D2D';
+libreCard.style.borderLeftColor = libre>=0?'#3B6D11':'#A32D2D';
+
 })();
 </script>
 </body>
