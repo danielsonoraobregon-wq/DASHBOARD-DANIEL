@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa Interactivo · Privada Encino</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:#0a0a0a; }
+
+#map { width:100vw; height:100vh; }
+
+/* Top bar */
+#topbar {
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  background:rgba(10,10,10,.85); backdrop-filter:blur(16px);
+  padding:12px 20px; display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+#topbar h1 { font-family:'Playfair Display',serif; font-size:16px; color:#fff; font-weight:600; }
+#topbar p { font-size:11px; color:rgba(255,255,255,.35); margin-top:2px; }
+#topbar-right { display:flex; gap:8px; align-items:center; }
+.tb-btn {
+  padding:7px 14px; border-radius:20px; font-size:11px; font-weight:600;
+  cursor:pointer; border:none; transition:all .15s;
+}
+.tb-btn-gold { background:#c8973a; color:#fff; }
+.tb-btn-ghost { background:rgba(255,255,255,.08); color:rgba(255,255,255,.6); }
+.tb-btn:hover { transform:translateY(-1px); }
+
+/* Info panel */
+#panel {
+  position:fixed; right:16px; top:76px; z-index:1000;
+  width:280px; background:rgba(15,15,15,.95); backdrop-filter:blur(20px);
+  border-radius:16px; border:1px solid rgba(255,255,255,.08);
+  overflow:hidden; transition:all .3s ease;
+  box-shadow:0 8px 40px rgba(0,0,0,.5);
+}
+#panel.hidden { transform:translateX(310px); opacity:0; pointer-events:none; }
+#panel-header {
+  padding:16px 18px 12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+#panel-titulo { font-family:'Playfair Display',serif; font-size:18px; color:#fff; font-weight:600; }
+#panel-badge { display:inline-block; font-size:10px; font-weight:600; padding:3px 10px; border-radius:20px; margin-top:6px; }
+#panel-body { padding:16px 18px; }
+.p-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); }
+.p-row:last-child { border:none; }
+.p-label { font-size:11px; color:rgba(255,255,255,.4); }
+.p-val { font-size:12px; font-weight:600; color:#fff; }
+#panel-precio { font-family:'Playfair Display',serif; font-size:24px; font-weight:600; color:#c8973a; margin:12px 0 4px; }
+#panel-precio-orig { font-size:13px; color:rgba(255,255,255,.25); text-decoration:line-through; }
+#panel-ahorro { display:inline-block; font-size:10px; font-weight:600; background:rgba(52,199,89,.15); color:#34c759; padding:3px 10px; border-radius:20px; margin-bottom:14px; }
+#panel-cta {
+  display:block; width:100%; padding:11px; background:linear-gradient(135deg,#c8973a,#d4ab74);
+  color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:600;
+  cursor:pointer; text-align:center; text-decoration:none; transition:all .2s;
+  margin-top:14px;
+}
+#panel-cta:hover { transform:translateY(-2px); box-shadow:0 4px 20px rgba(200,151,58,.4); }
+#panel-close {
+  position:absolute; top:12px; right:14px;
+  background:rgba(255,255,255,.07); border:none; color:rgba(255,255,255,.4);
+  width:26px; height:26px; border-radius:50%; font-size:13px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* Leyenda */
+#leyenda {
+  position:fixed; left:16px; bottom:20px; z-index:1000;
+  background:rgba(15,15,15,.9); backdrop-filter:blur(12px);
+  border-radius:12px; padding:12px 16px; border:1px solid rgba(255,255,255,.07);
+}
+.ley-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.ley-row:last-child { margin:0; }
+.ley-dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+.ley-txt { font-size:11px; color:rgba(255,255,255,.6); font-weight:500; }
+
+/* Capas toggle */
+#capas-btn {
+  position:fixed; left:16px; top:76px; z-index:1000;
+  background:rgba(15,15,15,.9); backdrop-filter:blur(12px);
+  border-radius:12px; padding:10px 14px; border:1px solid rgba(255,255,255,.07);
+  display:flex; flex-direction:column; gap:6px;
+}
+.cap-btn {
+  font-size:11px; font-weight:600; padding:6px 12px; border-radius:8px;
+  cursor:pointer; border:none; transition:all .15s; text-align:left;
+}
+.cap-btn.active { background:rgba(200,151,58,.2); color:#c8973a; }
+.cap-btn:not(.active) { background:rgba(255,255,255,.05); color:rgba(255,255,255,.4); }
+
+/* Leaflet overrides */
+.leaflet-popup-content-wrapper { background:rgba(10,10,10,.9); color:#fff; border-radius:12px; border:1px solid rgba(255,255,255,.1); }
+.leaflet-popup-tip { background:rgba(10,10,10,.9); }
+.leaflet-control-zoom { display:none; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div>
+    <h1>🌿 Privada Encino</h1>
+    <p>Mapa interactivo · Montemorelos, N.L. · 45 min de Monterrey</p>
+  </div>
+  <div id="topbar-right">
+    <button class="tb-btn tb-btn-ghost" onclick="window.location='/'">← Dashboard</button>
+    <a href="https://wa.me/528123200696?text=Hola%2C%20quiero%20informes%20sobre%20Privada%20Encino" class="tb-btn tb-btn-gold">Hablar con asesor →</a>
+  </div>
+</div>
+
+<!-- Info Panel -->
+<div id="panel" class="hidden">
+  <button id="panel-close" onclick="cerrarPanel()">✕</button>
+  <div id="panel-header">
+    <div id="panel-titulo">Lote 1</div>
+    <span id="panel-badge">Disponible</span>
+  </div>
+  <div id="panel-body">
+    <div id="panel-precio">$1,700,000</div>
+    <div id="panel-precio-orig">$2,000,000</div>
+    <span id="panel-ahorro">Ahorras $300,000</span>
+    <div>
+      <div class="p-row"><span class="p-label">Superficie</span><span class="p-val" id="p-sup">1,648 m²</span></div>
+      <div class="p-row"><span class="p-label">Dimensiones</span><span class="p-val" id="p-dims">38 × 38 m</span></div>
+      <div class="p-row"><span class="p-label">Enganche desde</span><span class="p-val" id="p-eng">$400,000</span></div>
+      <div class="p-row"><span class="p-label">Mensualidad desde</span><span class="p-val" id="p-mens">$72,222 × 18 meses</span></div>
+      <div class="p-row"><span class="p-label">Financiamiento</span><span class="p-val">Directo · 0% interés</span></div>
+    </div>
+    <a id="panel-cta" href="#">Quiero este lote →</a>
+  </div>
+</div>
+
+<!-- Capas -->
+<div id="capas-btn">
+  <div style="font-size:10px;color:rgba(255,255,255,.3);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Capa</div>
+  <button class="cap-btn active" id="btn-satelite" onclick="setCapa('satelite')">🛰 Satélite</button>
+  <button class="cap-btn" id="btn-aerial" onclick="setCapa('aerial')">📸 Fotogrametría</button>
+  <button class="cap-btn" id="btn-street" onclick="setCapa('street')">🗺 Mapa</button>
+</div>
+
+<!-- Leyenda -->
+<div id="leyenda">
+  <div class="ley-row"><div class="ley-dot" style="background:#34c759"></div><span class="ley-txt">Disponible</span></div>
+  <div class="ley-row"><div class="ley-dot" style="background:#ff9500"></div><span class="ley-txt">Reservado</span></div>
+  <div class="ley-row"><div class="ley-dot" style="background:#ff3b30"></div><span class="ley-txt">Vendido</span></div>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── LOTES DATA ────────────────────────────────────────────────────────────────
+const LOTES = [
+  {
+    id: 'L1', nombre: 'Lote 1', estado: 'Disponible',
+    precio: 1700000, original: 2000000, ahorro: 300000,
+    sup: '1,648 m²', dims: '38 × 38 m', eng: '$400,000', mens: '$72,222 × 18 meses',
+    // Coordenadas aproximadas — ajustar visualmente
+    coords: [
+      [25.27693, -99.92908],
+      [25.27726, -99.92895],
+      [25.27718, -99.92855],
+      [25.27685, -99.92868],
+    ]
+  },
+  {
+    id: 'L1B', nombre: 'Lote 1B', estado: 'Reservado',
+    precio: 1750000, original: 2050000, ahorro: 300000,
+    sup: '1,875 m²', dims: '40 × 47 m', eng: '$400,000', mens: '$75,000 × 18 meses',
+    coords: [
+      [25.27718, -99.92895],
+      [25.27726, -99.92860],
+      [25.27718, -99.92855],
+      [25.27726, -99.92895],
+    ]
+  },
+  {
+    id: 'L2', nombre: 'Lote 2', estado: 'Disponible',
+    precio: 1785000, original: 2100000, ahorro: 315000,
+    sup: '1,864 m²', dims: '43 × 39 m', eng: '$400,000', mens: '$76,944 × 18 meses',
+    coords: [
+      [25.27685, -99.92868],
+      [25.27718, -99.92855],
+      [25.27710, -99.92813],
+      [25.27677, -99.92826],
+    ]
+  },
+  {
+    id: 'L2B', nombre: 'Lote 2B', estado: 'Vendido',
+    precio: 1750000, original: 2050000, ahorro: 300000,
+    sup: '1,694 m²', dims: '38 × 44 m', eng: '$400,000', mens: '$75,000 × 18 meses',
+    coords: [
+      [25.27726, -99.92860],
+      [25.27734, -99.92820],
+      [25.27726, -99.92815],
+      [25.27718, -99.92855],
+    ]
+  },
+  {
+    id: 'L3B', nombre: 'Lote 3B', estado: 'Disponible',
+    precio: 1785000, original: 2100000, ahorro: 315000,
+    sup: '1,700 m²', dims: '43 × 39 m', eng: '$400,000', mens: '$76,944 × 18 meses',
+    coords: [
+      [25.27726, -99.92815],
+      [25.27734, -99.92775],
+      [25.27726, -99.92770],
+      [25.27718, -99.92810],
+    ]
+  },
+  {
+    id: 'L3', nombre: 'Lote 3', estado: 'Vendido',
+    precio: 1700000, original: 2000000, ahorro: 300000,
+    sup: '1,439 m²', dims: '38 × 38 m', eng: '$400,000', mens: '$72,222 × 18 meses',
+    coords: [
+      [25.27677, -99.92826],
+      [25.27710, -99.92813],
+      [25.27702, -99.92771],
+      [25.27669, -99.92784],
+    ]
+  },
+  {
+    id: 'L4B', nombre: 'Lote 4B', estado: 'Reservado',
+    precio: 1800000, original: 2075000, ahorro: 275000,
+    sup: '1,706 m²', dims: '45 × 38 m', eng: '$400,000', mens: '$77,778 × 18 meses',
+    coords: [
+      [25.27734, -99.92775],
+      [25.27742, -99.92735],
+      [25.27734, -99.92730],
+      [25.27726, -99.92770],
+    ]
+  },
+  {
+    id: 'L4', nombre: 'Lote 4 Premium', estado: 'Disponible',
+    precio: 1900000, original: 2075000, ahorro: 175000,
+    sup: '1,632 m²', dims: '45 × 38 m', eng: '$400,000', mens: '$91,666 × 12 meses',
+    coords: [
+      [25.27669, -99.92784],
+      [25.27702, -99.92771],
+      [25.27694, -99.92729],
+      [25.27661, -99.92742],
+    ]
+  },
+];
+
+const colores = {
+  'Disponible': { fill:'#34c759', border:'#27a348' },
+  'Reservado':  { fill:'#ff9500', border:'#cc7700' },
+  'Vendido':    { fill:'#ff3b30', border:'#cc2a22' },
+};
+
+// ── MAPA ──────────────────────────────────────────────────────────────────────
+const centro = [25.2769889989, -99.9288503436];
+const map = L.map('map', { center: centro, zoom: 18, zoomControl: false });
+
+// Capas base
+const satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Esri', maxZoom: 22
+});
+
+const street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: 'OSM', maxZoom: 22
+});
+
+// Fotogrametría overlay (GeoTIFF convertido a JPG con coordenadas exactas)
+const aerialBounds = [
+  [25.275845171793318, -99.9291067013154],  // SW
+  [25.27722475220121,  -99.92704790838938]  // NE
+];
+const aerialOverlay = L.imageOverlay('/encino-aerial.jpg', aerialBounds, { opacity: 0.9 });
+
+satelite.addTo(map);
+
+// ── POLÍGONOS ─────────────────────────────────────────────────────────────────
+let selectedPolygon = null;
+
+LOTES.forEach(lote => {
+  const c = colores[lote.estado];
+  const poly = L.polygon(lote.coords, {
+    color: c.border,
+    fillColor: c.fill,
+    fillOpacity: 0.35,
+    weight: 2,
+  }).addTo(map);
+
+  // Label en centroide
+  const bounds = poly.getBounds();
+  const center = bounds.getCenter();
+  const label = L.divIcon({
+    html: `<div style="background:rgba(0,0,0,.75);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;backdrop-filter:blur(4px)">${lote.nombre}</div>`,
+    className: '',
+    iconAnchor: [30, 10],
+  });
+  L.marker(center, { icon: label }).addTo(map);
+
+  poly.on('click', () => abrirPanel(lote, poly));
+  poly.on('mouseover', () => {
+    if (poly !== selectedPolygon)
+      poly.setStyle({ fillOpacity: 0.6, weight: 3 });
+  });
+  poly.on('mouseout', () => {
+    if (poly !== selectedPolygon)
+      poly.setStyle({ fillOpacity: 0.35, weight: 2 });
+  });
+
+  lote._poly = poly;
+});
+
+// ── PANEL ─────────────────────────────────────────────────────────────────────
+function fmt(n) { return '$' + n.toLocaleString('es-MX'); }
+
+function abrirPanel(lote, poly) {
+  if (selectedPolygon) selectedPolygon.setStyle({ fillOpacity: 0.35, weight: 2 });
+  selectedPolygon = poly;
+  poly.setStyle({ fillOpacity: 0.7, weight: 3 });
+
+  document.getElementById('panel-titulo').textContent = lote.nombre;
+  const badge = document.getElementById('panel-badge');
+  badge.textContent = lote.estado;
+  const bc = { Disponible: '#34c759', Reservado: '#ff9500', Vendido: '#ff3b30' };
+  badge.style.cssText = `background:${bc[lote.estado]}22;color:${bc[lote.estado]};padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700`;
+
+  document.getElementById('panel-precio').textContent = fmt(lote.precio);
+  document.getElementById('panel-precio-orig').textContent = fmt(lote.original);
+  document.getElementById('panel-ahorro').textContent = `Ahorras ${fmt(lote.ahorro)}`;
+  document.getElementById('p-sup').textContent = lote.sup;
+  document.getElementById('p-dims').textContent = lote.dims;
+  document.getElementById('p-eng').textContent = lote.eng;
+  document.getElementById('p-mens').textContent = lote.mens;
+
+  const msg = `Hola, me interesa el ${lote.nombre} de Privada Encino (${fmt(lote.precio)})`;
+  const cta = document.getElementById('panel-cta');
+  if (lote.estado === 'Disponible') {
+    cta.href = `https://wa.me/528123200696?text=${encodeURIComponent(msg)}`;
+    cta.textContent = 'Quiero este lote →';
+    cta.style.opacity = '1'; cta.style.pointerEvents = 'auto';
+  } else {
+    cta.href = '#';
+    cta.textContent = lote.estado === 'Vendido' ? 'Este lote ya fue vendido' : 'En proceso de reserva';
+    cta.style.opacity = '.5'; cta.style.pointerEvents = 'none';
+  }
+
+  document.getElementById('panel').classList.remove('hidden');
+  map.panTo(poly.getBounds().getCenter());
+}
+
+function cerrarPanel() {
+  document.getElementById('panel').classList.add('hidden');
+  if (selectedPolygon) { selectedPolygon.setStyle({ fillOpacity: 0.35, weight: 2 }); selectedPolygon = null; }
+}
+
+// ── CAPAS ─────────────────────────────────────────────────────────────────────
+let capaActual = 'satelite';
+function setCapa(capa) {
+  capaActual = capa;
+  ['satelite','aerial','street'].forEach(c => {
+    document.getElementById('btn-'+c).classList.toggle('active', c === capa);
+  });
+  map.removeLayer(satelite); map.removeLayer(street); map.removeLayer(aerialOverlay);
+  if (capa === 'satelite') satelite.addTo(map);
+  if (capa === 'aerial') { satelite.addTo(map); aerialOverlay.addTo(map); }
+  if (capa === 'street') street.addTo(map);
+}
+
+// Click en mapa cierra panel
+map.on('click', e => { if (!e.originalEvent._panel) cerrarPanel(); });
+</script>
+</body>
+</html>
