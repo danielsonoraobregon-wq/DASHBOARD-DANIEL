@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Generador de Cotización · Privada Encino</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 /* ── PANTALLA (formulario) ──────────────────────────────────────────── */
 :root {
@@ -137,7 +136,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 <div id="pantalla">
   <div class="s-header">
     <h1>🌿 Generador de Cotización</h1>
-    <p>Privada Encino · Montemorelos N.L.</p>
+    <p>Privada Encino · Montemorelos N.L. &nbsp;·&nbsp; <span id="reloj-live"></span></p>
   </div>
 
   <div class="s-card">
@@ -420,47 +419,63 @@ async function generar(){
   btn.disabled = true;
   btn.textContent = '⏳ Generando PDF...';
 
-  // Overlay oscuro para cubrir mientras renderizamos
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(26,26,26,.92);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px';
-  overlay.innerHTML = '<div style="color:#fff;font-size:17px;font-weight:600;font-family:DM Sans,sans-serif">Generando PDF...</div><div style="color:rgba(255,255,255,.4);font-size:12px;font-family:DM Sans,sans-serif">Puede tardar unos segundos</div>';
-  document.body.appendChild(overlay);
-
   const pdfDiv = document.getElementById('pdf');
-  // Hacemos visible el PDF detrás del overlay para que html2canvas lo pueda capturar
-  pdfDiv.style.cssText = 'display:block;position:fixed;top:0;left:0;z-index:9997;';
-  await new Promise(r => setTimeout(r, 500));
+  pdfDiv.style.display = 'block';
+
+  // Esperar fonts y layout
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 300));
+
+  const nombreArchivo = nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g,'-').replace(/-+/g,'-');
 
   try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'letter', orientation: 'portrait' });
-    const pages = pdfDiv.querySelectorAll('.pagina');
-
-    for (let i = 0; i < pages.length; i++) {
-      if (i > 0) doc.addPage();
-      const canvas = await html2canvas(pages[i], {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#FAF7F2',
-        logging: false,
-        windowWidth: pages[i].scrollWidth,
-        windowHeight: pages[i].scrollHeight,
-      });
-      doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 215.9, 279.4);
-    }
-
-    const nombreArchivo = nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g,'-').replace(/-+/g,'-');
-    doc.save(`Cotizacion-${nombreArchivo}-${lot.nombre.replace(/\s+/g,'-')}.pdf`);
+    await html2pdf()
+      .set({
+        margin: 0,
+        filename: `Cotizacion-${nombreArchivo}-${lot.nombre.replace(/\s+/g,'-')}.pdf`,
+        image: { type: 'jpeg', quality: 0.92 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#FAF7F2',
+        },
+        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' },
+        pagebreak: { before: '.pagina', avoid: ['tr','td','.plan-card','.ben'] },
+      })
+      .from(pdfDiv)
+      .save();
+  } catch(e) {
+    alert('Error al generar PDF: ' + e.message);
   } finally {
-    pdfDiv.style.cssText = 'display:none;';
-    document.body.removeChild(overlay);
+    pdfDiv.style.display = 'none';
     btn.disabled = false;
     btn.textContent = '📄 Generar PDF';
   }
 }
 
 cambiarLote();
+
+// Reloj en vivo
+function tickReloj(){
+  const ahora = new Date();
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const dias = ['dom','lun','mar','mié','jue','vie','sáb'];
+  const h = String(ahora.getHours()).padStart(2,'0');
+  const m = String(ahora.getMinutes()).padStart(2,'0');
+  const s = String(ahora.getSeconds()).padStart(2,'0');
+  document.getElementById('reloj-live').textContent =
+    `${dias[ahora.getDay()]} ${ahora.getDate()} ${meses[ahora.getMonth()]} ${ahora.getFullYear()} ${h}:${m}:${s}`;
+  // También actualiza el campo fecha-cotización si está vacío o es el mismo día
+  const fechaInput = document.getElementById('fecha');
+  const hoy = ahora.toISOString().slice(0,10);
+  if(!fechaInput.dataset.manual) fechaInput.value = hoy;
+}
+document.getElementById('fecha').addEventListener('change', e => {
+  e.target.dataset.manual = '1';
+});
+setInterval(tickReloj, 1000);
+tickReloj();
 </script>
 </body>
 </html>
