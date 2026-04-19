@@ -28,7 +28,12 @@ router.post('/', async (req, res) => {
   }
 });
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 async function procesarComentario(val) {
+  // Delay aleatorio 45-90 segundos para parecer humano
+  const delay = (45 + Math.floor(Math.random() * 45)) * 1000;
+  await sleep(delay);
   const comentarioId = val.comment_id;
   const postId = val.post_id;
   const usuarioId = val.from?.id;
