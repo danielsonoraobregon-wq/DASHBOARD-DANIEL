@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Pagos · Solagarada Inmobiliaria</title>
+<style>
+:root {
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f5f5f7;
+  --color-background-tertiary:#e8e8ed;
+  --color-background-warning:#fef9ec;
+  --color-text-primary:#1d1d1f;
+  --color-text-secondary:#6e6e73;
+  --color-text-warning:#854F0B;
+  --color-border-tertiary:#d2d2d7;
+  --color-border-warning:#f0c842;
+  --border-radius-lg:12px;
+  --border-radius-md:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --color-background-primary:#1c1c1e;
+    --color-background-secondary:#2c2c2e;
+    --color-background-tertiary:#3a3a3c;
+    --color-background-warning:#2d2000;
+    --color-text-primary:#f5f5f7;
+    --color-text-secondary:#98989d;
+    --color-text-warning:#FAC775;
+    --color-border-tertiary:#3a3a3c;
+    --color-border-warning:#7a5c00;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--color-background-secondary); color: var(--color-text-primary); padding: 20px; }
+.label { font-size: 11px; color: var(--color-text-secondary); letter-spacing: 0.05em; text-transform: uppercase; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.875rem 1rem; }
+.track { background: var(--color-background-tertiary); border-radius: 99px; height: 8px; width: 100%; }
+.bwarn { background:#FAEEDA;color:#854F0B;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px; }
+.bdanger { background:#FCEBEB;color:#A32D2D;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px; }
+.bok { background:#EAF3DE;color:#3B6D11;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px; }
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(prefers-color-scheme:dark){
+  .bwarn{background:#412402;color:#FAC775}
+  .bdanger{background:#501313;color:#F09595}
+  .bok{background:#173404;color:#C0DD97}
+}
+</style>
+</head>
+<body>
+
+<div style="max-width:1100px;margin:0 auto">
+  <div style="margin-bottom:1.5rem">
+    <h1 style="font-size:22px;font-weight:600">Dashboard de Pagos</h1>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin-top:4px">Solagarada Inmobiliaria · 8 lotes</p>
+  </div>
+
+  <div style="padding:1rem 0">
+  <h2 class="sr-only">Dashboard de pagos — 8 lotes Solagarada Inmobiliaria</h2>
+
+  <!-- Global stats -->
+  <div id="gstats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem"></div>
+
+  <!-- Alert -->
+  <div id="alert" style="margin-bottom:1.25rem"></div>
+
+  <!-- Lotes grid -->
+  <div id="lotes" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px"></div>
+
+  <!-- Detalle -->
+  <div id="detalle" style="margin-top:1.25rem"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+const today = new Date(); today.setHours(0,0,0,0);
+const MN = {Ene:0,Feb:1,Mar:2,Abr:3,May:4,Jun:5,Jul:6,Ago:7,Sep:8,Oct:9,Nov:10,Dic:11};
+const MNS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function pd(s){ const [d,m,y]=s.split(' '); return new Date(+y,MN[m],+d); }
+function addMon(d,n){ return new Date(d.getFullYear(), d.getMonth()+n, d.getDate()); }
+
+function mens(startStr, n, monto, extra){
+  const s=pd(startStr), res=[];
+  for(let i=0;i<n;i++){
+    const f=addMon(s,i);
+    res.push({tipo:'mensualidad',label:`Mensualidad #${i+1}`,fecha:f,
+      fechaStr:`${f.getDate()} ${MNS[f.getMonth()]} ${f.getFullYear()}`,monto});
+  }
+  if(extra){ const f=pd(extra.fecha); res.push({tipo:'mensualidad',label:'Pago extra',fecha:f,fechaStr:extra.fecha,monto:extra.monto}); }
+  return res;
+}
+
+const RAW = [
+  { id:1, lote:'Lote 1A', total:915750, color:'#993556',
+    fijos:[
+      {tipo:'enganche',label:'Separación (pagada)',fechaStr:'01 Nov 2023',monto:10000},
+      {tipo:'enganche',label:'Enganche — firma',fechaStr:'15 Nov 2023',monto:370000},
+      {tipo:'anualidad',label:'Anualidad 1',fechaStr:'30 Nov 2024',monto:50000},
+      {tipo:'anualidad',label:'Anualidad 2',fechaStr:'30 Nov 2025',monto:50000},
+      {tipo:'anualidad',label:'Anualidad 3',fechaStr:'30 Nov 2026',monto:50000},
+    ],
+    mens: mens('30 Dic 2023',36,10716,null)
+  },
+  { id:2, lote:'Lote 1B', total:925000, color:'#534AB7',
+    fijos:[
+      {tipo:'enganche',label:'Enganche — firma',fechaStr:'15 Mar 2024',monto:120000},
+      {tipo:'anualidad',label:'Anualidad 1',fechaStr:'31 Dic 2024',monto:73750},
+      {tipo:'anualidad',label:'Anualidad 2',fechaStr:'31 Dic 2025',monto:73750},
+      {tipo:'anualidad',label:'Anualidad 3',fechaStr:'31 Dic 2026',monto:73750},
+      {tipo:'anualidad',label:'Anualidad 4',fechaStr:'31 Dic 2027',monto:73750},
+    ],
+    mens: mens('30 Abr 2024',42,10000,null)
+  },
+  { id:3, lote:'Lote 2A', total:925000, color:'#0F6E56',
+    fijos:[
+      {tipo:'enganche',label:'Enganche 1/3 — firma',fechaStr:'15 Mar 2024',monto:61666},
+      {tipo:'enganche',label:'Enganche 2/3',fechaStr:'15 Abr 2024',monto:61666},
+      {tipo:'enganche',label:'Enganche 3/3',fechaStr:'15 May 2024',monto:61666},
+      {tipo:'anualidad',label:'Anualidad 1',fechaStr:'30 Dic 2024',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 2',fechaStr:'30 Dic 2025',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 3',fechaStr:'30 Dic 2026',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 4',fechaStr:'30 Dic 2027',monto:60000},
+    ],
+    mens: mens('30 Jun 2024',47,10500,{monto:6500,fecha:'30 May 2028'})
+  },
+  { id:4, lote:'Lote 2B', total:958000, color:'#185FA5',
+    fijos:[
+      {tipo:'enganche',label:'Enganche — firma',fechaStr:'15 Mar 2024',monto:479000},
+    ],
+    mens: mens('30 Jun 2024',48,9979,null)
+  },
+  { id:5, lote:'Lote 3A', total:925000, color:'#BA7517',
+    fijos:[
+      {tipo:'enganche',label:'Enganche 1/3 — firma',fechaStr:'15 Mar 2024',monto:61666},
+      {tipo:'enganche',label:'Enganche 2/3',fechaStr:'15 Abr 2024',monto:61666},
+      {tipo:'enganche',label:'Enganche 3/3',fechaStr:'15 May 2024',monto:61666},
+      {tipo:'anualidad',label:'Anualidad 1',fechaStr:'30 Dic 2024',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 2',fechaStr:'30 Dic 2025',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 3',fechaStr:'30 Dic 2026',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 4',fechaStr:'30 Dic 2027',monto:60000},
+    ],
+    mens: mens('30 Jun 2024',47,10500,{monto:6500,fecha:'30 May 2028'})
+  },
+  { id:6, lote:'Lote 3B', total:925000, color:'#993C1D',
+    fijos:[
+      {tipo:'enganche',label:'Enganche 1/3 — firma',fechaStr:'15 Mar 2024',monto:61666.6},
+      {tipo:'enganche',label:'Enganche 2/3',fechaStr:'30 Abr 2024',monto:61666.6},
+      {tipo:'enganche',label:'Enganche 3/3',fechaStr:'30 May 2024',monto:61666.6},
+      {tipo:'anualidad',label:'Anualidad 1',fechaStr:'31 Dic 2024',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 2',fechaStr:'30 Dic 2025',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 3',fechaStr:'30 Dic 2026',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 4',fechaStr:'30 Dic 2027',monto:60000},
+    ],
+    mens: mens('30 Jun 2024',48,10416,null)
+  },
+  { id:7, lote:'Lote 4A', total:909150, color:'#3B6D11',
+    fijos:[
+      {tipo:'enganche',label:'Enganche 1/2 — firma',fechaStr:'15 Ene 2024',monto:155740},
+      {tipo:'enganche',label:'Enganche 2/2',fechaStr:'29 Feb 2024',monto:117000},
+      {tipo:'anualidad',label:'Anualidad 1',fechaStr:'31 Ene 2025',monto:50000},
+      {tipo:'anualidad',label:'Anualidad 2',fechaStr:'31 Ene 2026',monto:50000},
+      {tipo:'anualidad',label:'Anualidad 3',fechaStr:'31 Ene 2027',monto:50000},
+    ],
+    mens: mens('30 Mar 2024',36,13511,null)
+  },
+  { id:8, lote:'Lote 4B', total:925000, color:'#639922',
+    fijos:[
+      {tipo:'enganche',label:'Enganche 1/3 — firma',fechaStr:'15 Mar 2024',monto:61666.6},
+      {tipo:'enganche',label:'Enganche 2/3',fechaStr:'30 Abr 2024',monto:61666.6},
+      {tipo:'enganche',label:'Enganche 3/3',fechaStr:'30 May 2024',monto:61666.6},
+      {tipo:'anualidad',label:'Anualidad 1',fechaStr:'30 Dic 2024',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 2',fechaStr:'30 Dic 2025',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 3',fechaStr:'30 Dic 2026',monto:60000},
+      {tipo:'anualidad',label:'Anualidad 4',fechaStr:'30 Dic 2027',monto:60000},
+    ],
+    mens: mens('30 Jun 2024',48,10416,null)
+  },
+];
+
+const fmt = n => '$'+Math.round(n).toLocaleString('es-MX');
+const pct = (a,b) => Math.min(100,Math.round(a/b*100));
+const dias = f => Math.ceil((f-today)/86400000);
+
+const buyers = RAW.map(b=>{
+  const all = [...b.fijos.map(f=>({...f,fecha:pd(f.fechaStr)})), ...b.mens];
+  const pagados = all.filter(p=>p.fecha<=today);
+  const pendientes = all.filter(p=>p.fecha>today).sort((a,z)=>a.fecha-z.fecha);
+  const totalPagado = pagados.reduce((s,p)=>s+p.monto,0);
+  const totalPend = pendientes.reduce((s,p)=>s+p.monto,0);
+  const en30 = new Date(today); en30.setDate(en30.getDate()+30);
+  const prox30 = pendientes.filter(p=>p.fecha<=en30);
+  return {...b,all,pagados,pendientes,totalPagado,totalPend,prox30,
+    pctPagado:pct(totalPagado,b.total),
+    proximoPago:pendientes[0]||null
+  };
+});
+
+const gT=buyers.reduce((s,b)=>s+b.total,0);
+const gP=buyers.reduce((s,b)=>s+b.totalPagado,0);
+const gR=buyers.reduce((s,b)=>s+b.totalPend,0);
+const gA=buyers.reduce((s,b)=>s+b.prox30.length,0);
+
+document.getElementById('gstats').innerHTML=[
+  {l:'Cartera total',v:fmt(gT),s:'8 lotes',c:'var(--color-text-primary)'},
+  {l:'Cubierto al día',v:fmt(gP),s:pct(gP,gT)+'% de la cartera',c:'#3B6D11'},
+  {l:'Por cobrar',v:fmt(gR),s:(100-pct(gP,gT))+'% restante',c:'#A32D2D'},
+  {l:'Alertas 30 días',v:gA+' pagos',s:fmt(buyers.flatMap(b=>b.prox30).reduce((s,p)=>s+p.monto,0))+' por vencer',c:'#854F0B'},
+].map(s=>`
+  <div class="stat">
+    <div class="label">${s.l}</div>
+    <div style="font-size:19px;font-weight:500;color:${s.c};margin-top:5px">${s.v}</div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">${s.s}</div>
+  </div>`).join('');
+
+const p30all=buyers.flatMap(b=>b.prox30.map(p=>({...p,lote:b.lote,color:b.color})));
+if(p30all.length){
+  document.getElementById('alert').innerHTML=`
+    <div style="background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:10px 14px">
+      <div style="font-size:12px;color:var(--color-text-warning);font-weight:500;margin-bottom:8px">Pagos que vencen en los próximos 30 días</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${p30all.map(p=>`
+          <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 10px;font-size:12px">
+            <span style="color:${p.color};font-weight:500">${p.lote}</span>
+            <span style="color:var(--color-text-secondary);margin:0 4px">·</span>
+            <span style="color:var(--color-text-primary)">${p.fechaStr}</span>
+            <span style="color:var(--color-text-secondary);margin:0 4px">·</span>
+            <span style="color:#A32D2D;font-weight:500">${fmt(p.monto)}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+let sel = null;
+function render(){
+  document.getElementById('lotes').innerHTML = buyers.map(b=>{
+    const isOpen = sel===b.id;
+    const d = b.proximoPago ? dias(b.proximoPago.fecha) : null;
+    const urg = d!==null && d<=30;
+    return `
+    <div class="card" style="border-left:3px solid ${b.color};cursor:pointer" onclick="tog(${b.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-size:16px;font-weight:500;color:${b.color}">${b.lote}</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Total: ${fmt(b.total)}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${urg?`<span class="bdanger">${d}d</span>`:''}
+          <span style="font-size:11px;color:var(--color-text-secondary)">${isOpen?'▲':'▼'}</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px">
+          <div class="label">Pagado</div>
+          <div style="font-size:20px;font-weight:500;color:#3B6D11;margin-top:3px">${b.pctPagado}%</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">${fmt(b.totalPagado)}</div>
+        </div>
+        <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px">
+          <div class="label">Pendiente</div>
+          <div style="font-size:20px;font-weight:500;color:#A32D2D;margin-top:3px">${100-b.pctPagado}%</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px">${fmt(b.totalPend)}</div>
+        </div>
+      </div>
+      <div class="track">
+        <div style="width:${b.pctPagado}%;background:${b.color};height:8px;border-radius:99px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary);margin-top:4px">
+        <span>${b.pagados.length} pagos cubiertos</span>
+        <span>${b.pendientes.length} pagos restantes</span>
+      </div>
+      ${b.proximoPago?`
+      <div style="margin-top:10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="label">Próximo pago</div>
+          <div style="font-size:12px;color:var(--color-text-primary);margin-top:2px">${b.proximoPago.fechaStr} · ${b.proximoPago.label}</div>
+        </div>
+        <div style="font-size:14px;font-weight:500;color:${urg?'#A32D2D':'var(--color-text-primary)'}">${fmt(b.proximoPago.monto)}</div>
+      </div>`:''}
+      ${isOpen?`
+      <div style="margin-top:14px;border-top:0.5px solid var(--color-border-tertiary);padding-top:12px">
+        <div class="label" style="margin-bottom:8px">Pagos pendientes (${b.pendientes.length})</div>
+        <div style="display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto">
+          ${b.pendientes.slice(0,25).map(p=>{
+            const dv=dias(p.fecha); const uv=dv<=30;
+            const tipoBadge = p.tipo==='anualidad'?`<span style="font-size:9px;color:#534AB7;border:0.5px solid #534AB755;padding:1px 5px;border-radius:3px;margin-left:4px">Anualidad</span>`:
+              p.tipo==='enganche'?`<span style="font-size:9px;color:#BA7517;border:0.5px solid #BA751755;padding:1px 5px;border-radius:3px;margin-left:4px">Enganche</span>`:'';
+            return `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid ${uv?'var(--color-border-warning)':'var(--color-border-tertiary)'}">
+              <div>
+                <div style="font-size:12px;color:var(--color-text-primary);display:flex;align-items:center">${p.label}${tipoBadge}</div>
+                <div style="font-size:10px;color:var(--color-text-secondary);margin-top:1px">${p.fechaStr}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:13px;font-weight:500;color:${uv?'#A32D2D':'var(--color-text-primary)'}">${fmt(p.monto)}</div>
+                <div style="font-size:10px;color:${uv?'#A32D2D':'var(--color-text-secondary)'}">${dv}d</div>
+              </div>
+            </div>`;
+          }).join('')}
+          ${b.pendientes.length>25?`<div style="font-size:11px;color:var(--color-text-secondary);text-align:center;padding:6px">...y ${b.pendientes.length-25} mensualidades más</div>`:''}
+        </div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+window.tog = id => { sel=(sel===id)?null:id; render(); };
+render();
+})();
+</script>
+</body>
+</html>
