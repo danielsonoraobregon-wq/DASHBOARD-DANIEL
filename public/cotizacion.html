@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Generador de Cotización · Privada Encino</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* ── PANTALLA (formulario) ──────────────────────────────────────────── */
 :root {
@@ -360,7 +361,7 @@ function preview(){ calcular(); }
 
 async function generar(){
   const btn = document.getElementById('btn-gen');
-  const nombre = document.getElementById('nombre').value.trim() || 'Estimado Cliente';
+  const nombre = document.getElementById('nombre').value.trim() || 'Cliente';
   const lot = LOTES[parseInt(document.getElementById('lote').value)];
   const eng = parseInt(document.getElementById('eng-slider').value);
   let pf = lot.pagoFinal ? parseInt(document.getElementById('pf-slider').value) : 0;
@@ -411,36 +412,53 @@ async function generar(){
   btn.disabled = true;
   btn.textContent = '⏳ Generando PDF...';
 
-  const pdfDiv = document.getElementById('pdf');
-  pdfDiv.style.display = 'block';
-
-  // Esperar fonts y layout
   await document.fonts.ready;
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise(r => setTimeout(r, 200));
 
   const nombreArchivo = nombre.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g,'-').replace(/-+/g,'-');
+  const pdfDiv = document.getElementById('pdf');
+  // Mostrar el div para que los estilos se computen
+  pdfDiv.style.cssText = 'display:block;visibility:hidden;position:fixed;top:0;left:0;';
+  await new Promise(r => setTimeout(r, 100));
+  const pages = Array.from(pdfDiv.querySelectorAll('.pagina'));
+  pdfDiv.style.cssText = 'display:none;';
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(44,74,62,.96);z-index:9990;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px';
+  overlay.innerHTML = '<div style="color:#fff;font-size:16px;font-weight:600;font-family:sans-serif">Generando PDF...</div>';
+  document.body.appendChild(overlay);
 
   try {
-    await html2pdf()
-      .set({
-        margin: 0,
-        filename: `Cotizacion-${nombreArchivo}-${lot.nombre.replace(/\s+/g,'-')}.pdf`,
-        image: { type: 'jpeg', quality: 0.92 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#FAF7F2',
-        },
-        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' },
-        pagebreak: { before: '.pagina', avoid: ['tr','td','.plan-card','.ben'] },
-      })
-      .from(pdfDiv)
-      .save();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'letter', orientation: 'portrait' });
+
+    for (let i = 0; i < pages.length; i++) {
+      if (i > 0) doc.addPage();
+
+      // Clonar cada página y renderizarla en aislamiento
+      const clone = pages[i].cloneNode(true);
+      clone.style.cssText = 'position:fixed;top:0;left:0;width:816px;height:1056px;overflow:hidden;z-index:9999;background:#FAF7F2;';
+      document.body.appendChild(clone);
+      await new Promise(r => setTimeout(r, 250));
+
+      const canvas = await html2canvas(clone, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#FAF7F2',
+        logging: false,
+        width: 816,
+        height: 1056,
+      });
+
+      document.body.removeChild(clone);
+      doc.addImage(canvas.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, 215.9, 279.4);
+    }
+
+    doc.save(`Cotizacion-${nombreArchivo}.pdf`);
   } catch(e) {
-    alert('Error al generar PDF: ' + e.message);
+    alert('Error: ' + e.message);
   } finally {
-    pdfDiv.style.display = 'none';
+    document.body.removeChild(overlay);
     btn.disabled = false;
     btn.textContent = '📄 Generar PDF';
   }
