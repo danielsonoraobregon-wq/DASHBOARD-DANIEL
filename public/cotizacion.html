@@ -39,16 +39,31 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 @media print {
   #pantalla{display:none!important}
   #pdf{display:block!important}
-  body{background:#fff;margin:0;padding:0}
+  body{background:#fff;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   @page{size:letter portrait;margin:0}
+
+  .pagina{
+    page-break-before:always;
+    break-before:page;
+    page-break-after:avoid;
+    break-after:avoid;
+    page-break-inside:avoid;
+    break-inside:avoid;
+  }
+  .pagina:first-child{page-break-before:auto;break-before:auto}
+
+  .lote-box,.plan-grid,.benefits-row,.p2-header{
+    page-break-inside:avoid;break-inside:avoid;
+  }
+  .tabla-pagos thead,.tabla-pagos tfoot{
+    page-break-inside:avoid;break-inside:avoid;
+  }
 }
 
 /* Páginas PDF */
 .pagina{
-  width:215.9mm;min-height:279.4mm;position:relative;
-  page-break-after:always;overflow:hidden;
+  width:215.9mm;height:279.4mm;position:relative;overflow:hidden;
 }
-.pagina:last-child{page-break-after:auto}
 
 /* Fondo textura crema */
 .pagina{background:#FAF7F2}
