@@ -71,7 +71,7 @@ router.get('/comentarios', async (req, res) => {
           }
         } catch (err) { console.error('Error al obtener comentarios FB:', err.message); errores.push(err.message); }
       }
-    } catch (err) { console.error('Error al obtener posts FB:', err.message); errores.push(err.message); }
+    } catch (err) { const d = err.response?.data || err.message; console.error('Error posts FB:', JSON.stringify(d)); errores.push(JSON.stringify(d)); }
 
     // Instagram posts
     try {
@@ -105,7 +105,7 @@ router.get('/comentarios', async (req, res) => {
           } catch (err) { console.error('Error al obtener comentarios IG:', err.message); errores.push(err.message); }
         }
       }
-    } catch (err) { console.error('Error al obtener posts IG:', err.message); errores.push(err.message); }
+    } catch (err) { const d = err.response?.data || err.message; console.error('Error posts IG:', JSON.stringify(d)); errores.push(JSON.stringify(d)); }
 
     comentarios.sort((a, b) => new Date(b.created_time) - new Date(a.created_time));
     if (comentarios.length === 0 && errores.length > 0) {
