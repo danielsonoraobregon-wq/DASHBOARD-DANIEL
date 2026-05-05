@@ -61,12 +61,12 @@ async function sincronizarAdSets(run, get) {
       if (!existe) {
         await run(
           'INSERT INTO terrenos (id,nombre,adset,estado,info) VALUES (?,?,?,?,?)',
-          [adset.id, adset.name, adset.name, estado, `Ad Set de ${adset.name}. Actualizado automáticamente desde Meta Ads.`]
+          [adset.id, adset.name, adset.id, estado, `Ad Set de ${adset.name}. Actualizado automáticamente desde Meta Ads.`]
         );
         console.log('✅ Terreno creado desde adset:', adset.name);
       } else {
         await run('UPDATE terrenos SET nombre=?, adset=?, estado=? WHERE id=? AND estado NOT IN ("Vendido")',
-          [adset.name, adset.name, estado, adset.id]);
+          [adset.name, adset.id, estado, adset.id]);
       }
     }
     console.log(`🔄 Sync Meta Ads: ${adsets.length} adsets procesados`);

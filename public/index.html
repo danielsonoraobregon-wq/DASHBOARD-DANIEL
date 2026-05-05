@@ -418,7 +418,7 @@ nav{padding:12px 10px;flex:1;overflow-y:auto}
         <div class="form-card-title" id="form-titulo">➕ Nuevo terreno</div>
         <div class="form-grid2">
           <div class="fg"><label>Nombre del lote</label><input class="fi" id="f-nombre" placeholder="Ej: Lote El Pinar #3"></div>
-          <div class="fg"><label>Nombre del Ad Set en Meta</label><input class="fi" id="f-adset" placeholder="Debe coincidir exactamente"></div>
+          <div class="fg"><label>ID del Ad Set en Meta</label><input class="fi" id="f-adset" placeholder="ID numérico del Ad Set"></div>
           <div class="fg"><label>Estado</label><select class="fi" id="f-estado"><option>Disponible</option><option>Reservado</option><option>Vendido</option></select></div>
         </div>
         <div class="fg">
@@ -674,6 +674,8 @@ async function loadStats() {
     if (s.gasto) {
       gastoMeta = s.gasto;
       periodo('semana', document.querySelector('.ptab.active') || document.querySelector('.ptab'));
+    } else {
+      gastoMeta = 0;
     }
     renderActividad(s.actividad);
     renderBloqueados(s.bloqueados);
@@ -814,7 +816,7 @@ let gastoMeta = null;
 function periodo(k,btn){
   document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  if (!gastoMeta) { set2('a-gasto','Cargando...'); return; }
+  if (gastoMeta === null || gastoMeta === undefined) { set2('a-gasto','Sin datos'); return; }
   const mapa = {hoy:'hoy', semana:'semana', mes:'mes', todo:'mes'};
   const d = gastoMeta[mapa[k]] || gastoMeta.semana;
   const fmt = n => '$' + parseFloat(n||0).toLocaleString('es-MX', {maximumFractionDigits:0});

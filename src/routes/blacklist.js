@@ -43,6 +43,7 @@ router.get('/comentarios', async (req, res) => {
     const token = process.env.META_PAGE_ACCESS_TOKEN;
     const pageId = process.env.META_PAGE_ID;
     const comentarios = [];
+    const errores = [];
 
     // Facebook posts
     try {
@@ -68,9 +69,9 @@ router.get('/comentarios', async (req, res) => {
               created_time: c.created_time,
             });
           }
-        } catch {}
+        } catch (err) { console.error('Error al obtener comentarios FB:', err.message); errores.push(err.message); }
       }
-    } catch {}
+    } catch (err) { console.error('Error al obtener posts FB:', err.message); errores.push(err.message); }
 
     // Instagram posts
     try {
@@ -101,12 +102,15 @@ router.get('/comentarios', async (req, res) => {
                 created_time: c.timestamp,
               });
             }
-          } catch {}
+          } catch (err) { console.error('Error al obtener comentarios IG:', err.message); errores.push(err.message); }
         }
       }
-    } catch {}
+    } catch (err) { console.error('Error al obtener posts IG:', err.message); errores.push(err.message); }
 
     comentarios.sort((a, b) => new Date(b.created_time) - new Date(a.created_time));
+    if (comentarios.length === 0 && errores.length > 0) {
+      return res.status(502).json({ error: 'No se pudieron obtener comentarios', detalles: errores });
+    }
     res.json(comentarios.slice(0, limit));
   } catch (e) {
     res.status(500).json({ error: e.response?.data?.error?.message || e.message });
