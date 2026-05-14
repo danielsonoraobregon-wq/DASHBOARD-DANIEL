@@ -47,7 +47,7 @@ router.get('/comentarios', async (req, res) => {
 
     // Facebook posts
     try {
-      const postsRes = await axios.get(`https://graph.facebook.com/v19.0/${pageId}/posts`, {
+      const postsRes = await axios.get(`https://graph.facebook.com/v19.0/${pageId}/published_posts`, {
         params: { fields: 'id,message,created_time,permalink_url', limit: 20, access_token: token }
       });
       for (const post of (postsRes.data.data || []).slice(0, 15)) {

@@ -30,11 +30,15 @@ async function init() {
     adset TEXT,
     estado TEXT DEFAULT 'Disponible',
     info TEXT,
+    post_ids TEXT,
     comentarios INTEGER DEFAULT 0,
     respondidos INTEGER DEFAULT 0,
     bloqueados INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
+
+  // Para DBs ya existentes: agrega la columna post_ids si falta
+  await pool.query(`ALTER TABLE terrenos ADD COLUMN IF NOT EXISTS post_ids TEXT`);
 
   await pool.query(`CREATE TABLE IF NOT EXISTS actividad (
     id SERIAL PRIMARY KEY,
