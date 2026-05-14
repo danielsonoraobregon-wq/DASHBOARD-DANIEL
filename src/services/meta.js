@@ -38,7 +38,8 @@ async function getAdSetDeComentario(postId) {
       }
     });
     return res.data.adset_name || null;
-  } catch {
+  } catch (e) {
+    console.error('⚠️ getAdSetDeComentario falló para', postId, '—', e.response?.data?.error?.message || e.message);
     return null;
   }
 }

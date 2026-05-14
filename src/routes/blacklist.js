@@ -53,7 +53,7 @@ router.get('/comentarios', async (req, res) => {
       for (const post of (postsRes.data.data || []).slice(0, 15)) {
         try {
           const commRes = await axios.get(`https://graph.facebook.com/v19.0/${post.id}/comments`, {
-            params: { fields: 'id,message,from{id,name},created_time,is_hidden', limit: 50, access_token: token, filter: 'stream' }
+            params: { fields: 'id,message,from{id,name},created_time,is_hidden', limit: 50, access_token: token, order: 'reverse_chronological' }
           });
           for (const c of commRes.data.data || []) {
             comentarios.push({
@@ -81,9 +81,9 @@ router.get('/comentarios', async (req, res) => {
       const igId = igPageRes.data.instagram_business_account?.id;
       if (igId) {
         const mediaRes = await axios.get(`https://graph.facebook.com/v19.0/${igId}/media`, {
-          params: { fields: 'id,caption,timestamp,permalink', limit: 5, access_token: token }
+          params: { fields: 'id,caption,timestamp,permalink', limit: 12, access_token: token }
         });
-        for (const media of (mediaRes.data.data || []).slice(0, 4)) {
+        for (const media of (mediaRes.data.data || []).slice(0, 12)) {
           try {
             const commRes = await axios.get(`https://graph.facebook.com/v19.0/${media.id}/comments`, {
               params: { fields: 'id,text,username,timestamp,hidden', limit: 15, access_token: token }

@@ -18,28 +18,52 @@ router.get('/', (req, res) => {
 router.post('/', async (req, res) => {
   res.sendStatus(200);
   const body = req.body;
-  if (body.object !== 'page') return;
+  if (body.object !== 'page' && body.object !== 'instagram') return;
   for (const entry of body.entry || []) {
     for (const change of entry.changes || []) {
-      if (change.field === 'feed' && change.value?.item === 'comment' && change.value?.verb === 'add') {
-        procesarComentario(change.value).catch(e => console.error('❌', e.message));
+      const comentario = normalizarComentario(change);
+      if (comentario) {
+        procesarComentario(comentario).catch(e => console.error('❌', e.message));
       }
     }
   }
 });
 
+// Normaliza comentarios de Facebook (feed) e Instagram (comments) al mismo formato.
+// Sin esto, los comentarios de Instagram nunca se procesan porque llegan en field 'comments'.
+function normalizarComentario(change) {
+  const v = change.value;
+  if (!v) return null;
+  if (change.field === 'feed' && v.item === 'comment' && v.verb === 'add') {
+    return {
+      plataforma: 'facebook',
+      comentarioId: v.comment_id,
+      postId: v.post_id,
+      usuarioId: v.from?.id,
+      usuarioNombre: v.from?.name,
+      texto: v.message,
+    };
+  }
+  if (change.field === 'comments') {
+    return {
+      plataforma: 'instagram',
+      comentarioId: v.id,
+      postId: v.media?.id,
+      usuarioId: v.from?.id,
+      usuarioNombre: v.from?.username,
+      texto: v.text,
+    };
+  }
+  return null;
+}
+
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function procesarComentario(val) {
+async function procesarComentario(c) {
   // Delay aleatorio 45-90 segundos para parecer humano
   const delay = (45 + Math.floor(Math.random() * 45)) * 1000;
   await sleep(delay);
-  const comentarioId = val.comment_id;
-  const postId = val.post_id;
-  const usuarioId = val.from?.id;
-  const usuarioNombre = val.from?.name;
-  const texto = val.message;
-  const plataforma = val.post_id?.includes('_') ? 'facebook' : 'instagram';
+  const { comentarioId, postId, usuarioId, usuarioNombre, texto, plataforma } = c;
 
   const bloqueado = await get('SELECT id FROM bloqueados WHERE usuario_id = ?', [usuarioId]);
   if (bloqueado) return;
@@ -61,7 +85,12 @@ async function procesarComentario(val) {
   let terreno = adsetName
     ? await get("SELECT * FROM terrenos WHERE adset = ? AND estado != 'Vendido'", [adsetName])
     : null;
-  if (!terreno) terreno = await get("SELECT * FROM terrenos WHERE estado = 'Disponible' LIMIT 1");
+  if (!terreno) {
+    console.log(adsetName
+      ? `⚠️ Adset "${adsetName}" sin terreno asociado — usando terreno por defecto`
+      : '⚠️ Comentario sin adset detectado — usando terreno por defecto');
+    terreno = await get("SELECT * FROM terrenos WHERE estado = 'Disponible' LIMIT 1");
+  }
   if (!terreno) return;
 
   const respuesta = await generarRespuesta(texto, terreno, usuarioNombre);
