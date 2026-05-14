@@ -64,20 +64,34 @@ async function sincronizarAdSets(run, get) {
       const estado = adset.effective_status === 'ACTIVE' ? 'Disponible' : 'Pausado';
 
       // Obtiene los post_id de los anuncios del adset para poder mapear
-      // comentarios entrantes al terreno correcto.
+      // comentarios entrantes al terreno correcto. La expansión anidada
+      // creative{...} no devuelve subcampos con este token, así que se hace
+      // en dos pasos: ads -> creative.id, luego batch creative -> post id.
       let postIds = '';
       try {
         const adsRes = await axios.get(`${BASE}/${adset.id}/ads`, {
           params: {
-            fields: 'creative{object_story_id}',
+            fields: 'creative',
             limit: 50,
             access_token: process.env.META_PAGE_ACCESS_TOKEN
           }
         });
-        postIds = (adsRes.data.data || [])
-          .map(ad => ad.creative?.object_story_id)
-          .filter(Boolean)
-          .join(',');
+        const creativeIds = (adsRes.data.data || [])
+          .map(ad => ad.creative?.id)
+          .filter(Boolean);
+        if (creativeIds.length) {
+          const crRes = await axios.get(`${BASE}/`, {
+            params: {
+              ids: creativeIds.join(','),
+              fields: 'effective_object_story_id',
+              access_token: process.env.META_PAGE_ACCESS_TOKEN
+            }
+          });
+          const ids = Object.values(crRes.data || {})
+            .map(cr => cr.effective_object_story_id)
+            .filter(Boolean);
+          postIds = [...new Set(ids)].join(',');
+        }
       } catch (e) {
         console.error('Error obteniendo post_ids del adset', adset.id, '—', e.response?.data?.error?.message || e.message);
       }

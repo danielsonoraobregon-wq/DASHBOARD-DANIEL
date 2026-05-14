@@ -73,6 +73,38 @@ router.get('/comentarios', async (req, res) => {
       }
     } catch (err) { const d = err.response?.data || err.message; console.error('Error posts FB:', JSON.stringify(d)); errores.push(JSON.stringify(d)); }
 
+    // Comentarios en posts de anuncios (dark posts que NO salen en published_posts).
+    // Los post_id se guardan en la tabla terrenos durante sincronizarAdSets.
+    try {
+      const terrenos = await all("SELECT post_ids FROM terrenos WHERE post_ids IS NOT NULL AND post_ids != ''");
+      const adPostIds = [...new Set(
+        terrenos.flatMap(t => (t.post_ids || '').split(',')).filter(Boolean)
+      )];
+      const postsVistos = new Set(comentarios.map(c => c.post_id));
+      for (const postId of adPostIds) {
+        if (postsVistos.has(postId)) continue;
+        try {
+          const commRes = await axios.get(`https://graph.facebook.com/v19.0/${postId}/comments`, {
+            params: { fields: 'id,message,from{id,name},created_time,is_hidden', limit: 50, access_token: token, order: 'reverse_chronological' }
+          });
+          for (const c of commRes.data.data || []) {
+            comentarios.push({
+              id: c.id,
+              plataforma: 'facebook',
+              post_id: postId,
+              post_msg: '(anuncio)',
+              post_url: `https://www.facebook.com/${postId}`,
+              mensaje: c.message,
+              usuario: c.from?.name || 'Usuario',
+              usuario_id: c.from?.id,
+              oculto: c.is_hidden,
+              created_time: c.created_time,
+            });
+          }
+        } catch (err) { console.error('Error comentarios de ad post:', postId, err.message); errores.push(err.message); }
+      }
+    } catch (err) { console.error('Error leyendo post_ids de terrenos:', err.message); }
+
     // Instagram posts
     try {
       const igPageRes = await axios.get(`https://graph.facebook.com/v19.0/${pageId}`, {
