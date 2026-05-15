@@ -979,15 +979,25 @@ window.addEventListener('DOMContentLoaded', () => {
 let todosComments = [];
 let filtroPost = null;
 
-async function loadComentarios() {
+let cargandoComentarios = false;
+async function loadComentarios(silencioso) {
+  if (cargandoComentarios) return; // evita llamadas encimadas (bucle de "Cargando")
+  cargandoComentarios = true;
   const el = document.getElementById('comentarios-lista');
-  el.innerHTML = '<p style="color:var(--muted);font-size:13px">Cargando...</p>';
+  // En refresco silencioso no se borra la lista actual; solo se actualiza al terminar
+  if (!silencioso || !todosComments.length) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:13px">Cargando...</p>';
+  }
   try {
     todosComments = await api('/api/blacklist/comentarios?limit=30');
     filtroPost = null;
     renderFiltros();
     renderComentarios();
-  } catch(e) { el.innerHTML = '<p style="color:var(--red);font-size:13px">Error: '+e.message+'</p>'; }
+  } catch(e) {
+    if (!todosComments.length) el.innerHTML = '<p style="color:var(--red);font-size:13px">Error: '+e.message+'</p>';
+  } finally {
+    cargandoComentarios = false;
+  }
 }
 
 function renderFiltros() {
@@ -1232,7 +1242,7 @@ checkEncinoStatus();
 setInterval(checkEncinoStatus, 60000);
 setInterval(() => {
   if (document.getElementById('v-whatsapp').classList.contains('active')) loadWhatsapp();
-  if (document.getElementById('v-bot_fb').classList.contains('active')) loadComentarios();
+  if (document.getElementById('v-bot_fb').classList.contains('active')) loadComentarios(true);
 }, 30000);
 </script>
 </body>

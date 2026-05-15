@@ -37,107 +37,107 @@ router.post('/usuarios/:userId/bloquear', async (req, res) => {
 });
 
 // Comentarios de FB + IG
+// Todas las llamadas a Meta se hacen EN PARALELO con timeout, para que el
+// endpoint responda en ~segundos en vez de minutos (antes era secuencial y
+// el frontend lo volvia a pedir antes de terminar -> bucle de "Cargando").
 router.get('/comentarios', async (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
+  const token = process.env.META_PAGE_ACCESS_TOKEN;
+  const pageId = process.env.META_PAGE_ID;
+  const GRAPH = 'https://graph.facebook.com/v19.0';
+  const TIMEOUT = 8000;
+  const comentarios = [];
+  const errores = [];
+
+  const getFbComments = postId => axios.get(`${GRAPH}/${postId}/comments`, {
+    params: { fields: 'id,message,from{id,name},created_time,is_hidden', limit: 50, access_token: token, order: 'reverse_chronological' },
+    timeout: TIMEOUT,
+  });
+  const getIgComments = mediaId => axios.get(`${GRAPH}/${mediaId}/comments`, {
+    params: { fields: 'id,text,username,timestamp,hidden', limit: 15, access_token: token },
+    timeout: TIMEOUT,
+  });
+
   try {
-    const token = process.env.META_PAGE_ACCESS_TOKEN;
-    const pageId = process.env.META_PAGE_ID;
-    const comentarios = [];
-    const errores = [];
+    // 1. Recolectar las fuentes de posts en paralelo
+    const [postsRes, terrenosRows, igAccountRes] = await Promise.all([
+      axios.get(`${GRAPH}/${pageId}/published_posts`, {
+        params: { fields: 'id,message,created_time,permalink_url', limit: 20, access_token: token },
+        timeout: TIMEOUT,
+      }).catch(e => { errores.push('posts FB: ' + e.message); return null; }),
+      all("SELECT post_ids FROM terrenos WHERE post_ids IS NOT NULL AND post_ids != ''")
+        .catch(e => { errores.push('db terrenos: ' + e.message); return []; }),
+      axios.get(`${GRAPH}/${pageId}`, {
+        params: { fields: 'instagram_business_account', access_token: token },
+        timeout: TIMEOUT,
+      }).catch(e => { errores.push('IG account: ' + e.message); return null; }),
+    ]);
 
-    // Facebook posts
-    try {
-      const postsRes = await axios.get(`https://graph.facebook.com/v19.0/${pageId}/published_posts`, {
-        params: { fields: 'id,message,created_time,permalink_url', limit: 20, access_token: token }
-      });
-      for (const post of (postsRes.data.data || []).slice(0, 15)) {
-        try {
-          const commRes = await axios.get(`https://graph.facebook.com/v19.0/${post.id}/comments`, {
-            params: { fields: 'id,message,from{id,name},created_time,is_hidden', limit: 50, access_token: token, order: 'reverse_chronological' }
-          });
-          for (const c of commRes.data.data || []) {
-            comentarios.push({
-              id: c.id,
-              plataforma: 'facebook',
-              post_id: post.id,
-              post_msg: (post.message || '').slice(0, 60),
-              post_url: post.permalink_url || `https://www.facebook.com/${post.id}`,
-              mensaje: c.message,
-              usuario: c.from?.name || 'Usuario',
-              usuario_id: c.from?.id,
-              oculto: c.is_hidden,
-              created_time: c.created_time,
-            });
-          }
-        } catch (err) { console.error('Error al obtener comentarios FB:', err.message); errores.push(err.message); }
-      }
-    } catch (err) { const d = err.response?.data || err.message; console.error('Error posts FB:', JSON.stringify(d)); errores.push(JSON.stringify(d)); }
+    const fbPosts = (postsRes?.data?.data || []).slice(0, 15);
+    const fbPostMeta = {};
+    fbPosts.forEach(p => { fbPostMeta[p.id] = p; });
 
-    // Comentarios en posts de anuncios (dark posts que NO salen en published_posts).
-    // Los post_id se guardan en la tabla terrenos durante sincronizarAdSets.
-    try {
-      const terrenos = await all("SELECT post_ids FROM terrenos WHERE post_ids IS NOT NULL AND post_ids != ''");
-      const adPostIds = [...new Set(
-        terrenos.flatMap(t => (t.post_ids || '').split(',')).filter(Boolean)
-      )];
-      const postsVistos = new Set(comentarios.map(c => c.post_id));
-      for (const postId of adPostIds) {
-        if (postsVistos.has(postId)) continue;
-        try {
-          const commRes = await axios.get(`https://graph.facebook.com/v19.0/${postId}/comments`, {
-            params: { fields: 'id,message,from{id,name},created_time,is_hidden', limit: 50, access_token: token, order: 'reverse_chronological' }
-          });
-          for (const c of commRes.data.data || []) {
-            comentarios.push({
-              id: c.id,
-              plataforma: 'facebook',
-              post_id: postId,
-              post_msg: '(anuncio)',
-              post_url: `https://www.facebook.com/${postId}`,
-              mensaje: c.message,
-              usuario: c.from?.name || 'Usuario',
-              usuario_id: c.from?.id,
-              oculto: c.is_hidden,
-              created_time: c.created_time,
-            });
-          }
-        } catch (err) { console.error('Error comentarios de ad post:', postId, err.message); errores.push(err.message); }
-      }
-    } catch (err) { console.error('Error leyendo post_ids de terrenos:', err.message); }
+    const adPostIds = [...new Set(
+      terrenosRows.flatMap(t => (t.post_ids || '').split(',')).filter(Boolean)
+    )];
+    const allFbPostIds = [...new Set([...fbPosts.map(p => p.id), ...adPostIds])];
 
-    // Instagram posts
-    try {
-      const igPageRes = await axios.get(`https://graph.facebook.com/v19.0/${pageId}`, {
-        params: { fields: 'instagram_business_account', access_token: token }
-      });
-      const igId = igPageRes.data.instagram_business_account?.id;
-      if (igId) {
-        const mediaRes = await axios.get(`https://graph.facebook.com/v19.0/${igId}/media`, {
-          params: { fields: 'id,caption,timestamp,permalink', limit: 12, access_token: token }
+    let igMedia = [];
+    const igId = igAccountRes?.data?.instagram_business_account?.id;
+    if (igId) {
+      const mediaRes = await axios.get(`${GRAPH}/${igId}/media`, {
+        params: { fields: 'id,caption,timestamp,permalink', limit: 12, access_token: token },
+        timeout: TIMEOUT,
+      }).catch(e => { errores.push('IG media: ' + e.message); return null; });
+      igMedia = (mediaRes?.data?.data || []).slice(0, 12);
+    }
+
+    // 2. Traer TODOS los comentarios en paralelo
+    const [fbResults, igResults] = await Promise.all([
+      Promise.allSettled(allFbPostIds.map(getFbComments)),
+      Promise.allSettled(igMedia.map(m => getIgComments(m.id))),
+    ]);
+
+    // 3. Procesar resultados de Facebook
+    fbResults.forEach((r, i) => {
+      const postId = allFbPostIds[i];
+      if (r.status !== 'fulfilled') { errores.push('FB ' + postId + ': ' + r.reason.message); return; }
+      const meta = fbPostMeta[postId];
+      for (const c of r.value.data.data || []) {
+        comentarios.push({
+          id: c.id,
+          plataforma: 'facebook',
+          post_id: postId,
+          post_msg: meta ? (meta.message || '').slice(0, 60) : '(anuncio)',
+          post_url: meta?.permalink_url || `https://www.facebook.com/${postId}`,
+          mensaje: c.message,
+          usuario: c.from?.name || 'Usuario',
+          usuario_id: c.from?.id,
+          oculto: c.is_hidden,
+          created_time: c.created_time,
         });
-        for (const media of (mediaRes.data.data || []).slice(0, 12)) {
-          try {
-            const commRes = await axios.get(`https://graph.facebook.com/v19.0/${media.id}/comments`, {
-              params: { fields: 'id,text,username,timestamp,hidden', limit: 15, access_token: token }
-            });
-            for (const c of commRes.data.data || []) {
-              comentarios.push({
-                id: c.id,
-                plataforma: 'instagram',
-                post_id: media.id,
-                post_msg: (media.caption || '').slice(0, 60),
-                post_url: media.permalink || `https://www.instagram.com/`,
-                mensaje: c.text,
-                usuario: c.username || 'usuario',
-                usuario_id: null,
-                oculto: c.hidden,
-                created_time: c.timestamp,
-              });
-            }
-          } catch (err) { console.error('Error al obtener comentarios IG:', err.message); errores.push(err.message); }
-        }
       }
-    } catch (err) { const d = err.response?.data || err.message; console.error('Error posts IG:', JSON.stringify(d)); errores.push(JSON.stringify(d)); }
+    });
+
+    // 4. Procesar resultados de Instagram
+    igResults.forEach((r, i) => {
+      const media = igMedia[i];
+      if (r.status !== 'fulfilled') { errores.push('IG ' + media.id + ': ' + r.reason.message); return; }
+      for (const c of r.value.data.data || []) {
+        comentarios.push({
+          id: c.id,
+          plataforma: 'instagram',
+          post_id: media.id,
+          post_msg: (media.caption || '').slice(0, 60),
+          post_url: media.permalink || 'https://www.instagram.com/',
+          mensaje: c.text,
+          usuario: c.username || 'usuario',
+          usuario_id: null,
+          oculto: c.hidden,
+          created_time: c.timestamp,
+        });
+      }
+    });
 
     comentarios.sort((a, b) => new Date(b.created_time) - new Date(a.created_time));
     if (comentarios.length === 0 && errores.length > 0) {
